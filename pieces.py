@@ -137,8 +137,58 @@ class King(Piece):
         if x == y == 0:
             return False
 
+        # Move One Square
         if abs(x) <= 1 and abs(y) <= 1:
             return True
+
+        # Castling
+        if abs(x) == 2 and y == 0 and not self.hasMoved:
+            # Right
+            if x == 2:
+                rookSquare = (self.square[0] + 3, self.square[1])
+                rook = board.getPieceAt(rookSquare)
+                if rook and not rook.getMoved():
+                    if not self.moveThroughPieces(rookSquare, board) and not self.moveThroughCheck(rookSquare, board):
+                        return True
+
+            # Left
+            elif x == -2:
+                rookSquare = (self.square[0] - 4, self.square[1])
+                rook = board.getPieceAt(rookSquare)
+                if rook and not rook.getMoved():
+                    if not self.moveThroughPieces(rookSquare, board) and not self.moveThroughCheck(rookSquare, board):
+                        return True
+
+        return False
+
+    def moveThroughCheck(self, square, board):
+        x, y = square
+        xDirection = x - self.square[0]
+        yDirection = y - self.square[1]
+
+        if xDirection != 0:
+            xDirection //= abs(xDirection)
+        else:
+            xDirection = 0
+
+        if yDirection != 0:
+            yDirection //= abs(yDirection)
+        else:
+            yDirection = 0
+
+        tempX, tempY = self.square
+        while tempX != x or tempY != y:
+            if self.isWhite():
+                pieces = board.getBlackPieces()
+            else:
+                pieces = board.getWhitePieces()
+
+            for piece in pieces:
+                if piece.isValid((tempX, tempY), board):
+                    return True
+
+            tempX += xDirection
+            tempY += yDirection
 
         return False
 
@@ -237,7 +287,7 @@ class Knight(Piece):
             self.image = B_KNIGHT
 
     def clone(self):
-        clone = Rook(self.square, self.colour)
+        clone = Knight(self.square, self.colour)
         clone.alive = self.alive
         return clone
 

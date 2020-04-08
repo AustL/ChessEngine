@@ -61,6 +61,12 @@ class Board:
 
         return None
 
+    def getWhitePieces(self):
+        return self.whitePieces
+
+    def getBlackPieces(self):
+        return self.blackPieces
+
     def clone(self):
         cloneWhitePieces = [piece.clone() for piece in self.whitePieces]
         cloneBlackPieces = [piece.clone() for piece in self.blackPieces]
