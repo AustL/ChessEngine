@@ -1,19 +1,34 @@
-from board import *
-from players import *
+import board
+import players
+from resources import *
 
 import pygame
 import os
+from collections import deque
 
 
 class Game:
     def __init__(self):
-        self.board = Board()
-        self.white = Human(WHITE, self.board)
-        self.black = Human(BLACK, self.board)
+        self.board = board.Board()
+        self.white = players.Human(WHITE)
+        self.black = players.Human(BLACK)
+        self.history = deque()
 
     def run(self):
-        self.white.listen(win)
-        self.black.listen(win)
+        run = True
+        while run:
+            self.history.append(self.board.clone())
+            self.white.listen(win, self)
+            self.history.append(self.board.clone())
+            self.black.listen(win, self)
+
+    def undo(self):
+        if len(self.history) > 1:
+            self.board = self.history.pop()
+            self.board = self.history.pop()
+            return True
+
+        return False
 
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'

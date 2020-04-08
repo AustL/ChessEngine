@@ -1,4 +1,5 @@
-from pieces import *
+import pieces
+from resources import *
 
 
 class Board:
@@ -10,33 +11,41 @@ class Board:
 
     def display(self, win):
         win.blit(CHESSBOARD, (0, 0))
+        hoveringPiece = None
 
         for piece in self.whitePieces:
+            if piece.isMoving():
+                hoveringPiece = piece
             piece.display(win)
 
         for piece in self.blackPieces:
+            if piece.isMoving():
+                hoveringPiece = piece
             piece.display(win)
+
+        if hoveringPiece:
+            hoveringPiece.display(win)
 
     def createPieces(self):
         whitePieces = {
-            (0, 7): Rook, (0, 6): Pawn,
-            (1, 7): Knight, (1, 6): Pawn,
-            (2, 7): Bishop, (2, 6): Pawn,
-            (3, 7): Queen, (3, 6): Pawn,
-            (4, 7): King, (4, 6): Pawn,
-            (5, 7): Bishop, (5, 6): Pawn,
-            (6, 7): Knight, (6, 6): Pawn,
-            (7, 7): Rook, (7, 6): Pawn
+            (0, 7): pieces.Rook, (0, 6): pieces.Pawn,
+            (1, 7): pieces.Knight, (1, 6): pieces.Pawn,
+            (2, 7): pieces.Bishop, (2, 6): pieces.Pawn,
+            (3, 7): pieces.Queen, (3, 6): pieces.Pawn,
+            (4, 7): pieces.King, (4, 6): pieces.Pawn,
+            (5, 7): pieces.Bishop, (5, 6): pieces.Pawn,
+            (6, 7): pieces.Knight, (6, 6): pieces.Pawn,
+            (7, 7): pieces.Rook, (7, 6): pieces.Pawn
         }
         blackPieces = {
-            (0, 0): Rook, (0, 1): Pawn,
-            (1, 0): Knight, (1, 1): Pawn,
-            (2, 0): Bishop, (2, 1): Pawn,
-            (3, 0): Queen, (3, 1): Pawn,
-            (4, 0): King, (4, 1): Pawn,
-            (5, 0): Bishop, (5, 1): Pawn,
-            (6, 0): Knight, (6, 1): Pawn,
-            (7, 0): Rook, (7, 1): Pawn
+            (0, 0): pieces.Rook, (0, 1): pieces.Pawn,
+            (1, 0): pieces.Knight, (1, 1): pieces.Pawn,
+            (2, 0): pieces.Bishop, (2, 1): pieces.Pawn,
+            (3, 0): pieces.Queen, (3, 1): pieces.Pawn,
+            (4, 0): pieces.King, (4, 1): pieces.Pawn,
+            (5, 0): pieces.Bishop, (5, 1): pieces.Pawn,
+            (6, 0): pieces.Knight, (6, 1): pieces.Pawn,
+            (7, 0): pieces.Rook, (7, 1): pieces.Pawn
         }
 
         for square, piece in whitePieces.items():
@@ -51,6 +60,38 @@ class Board:
                 return piece
 
         return None
+
+    def getWhitePieces(self):
+        return self.whitePieces
+
+    def getBlackPieces(self):
+        return self.blackPieces
+
+    def replacePiece(self, oldPiece, newPiece):
+        for i, piece in enumerate(self.whitePieces):
+            if piece is oldPiece:
+                self.whitePieces[i] = newPiece
+
+        for i, piece in enumerate(self.blackPieces):
+            if piece is oldPiece:
+                self.blackPieces[i] = newPiece
+
+        del oldPiece
+
+    def isLegalMove(self, colour):
+        if colour == WHITE:
+            enemyPieces = self.blackPieces
+            king = self.whitePieces[8]
+        else:
+            enemyPieces = self.whitePieces
+            king = self.blackPieces[8]
+
+        kingSquare = king.getSquare()
+        for piece in enemyPieces:
+            if piece.isValid(kingSquare, self):
+                return False
+
+        return True
 
     def clone(self):
         cloneWhitePieces = [piece.clone() for piece in self.whitePieces]

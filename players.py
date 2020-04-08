@@ -1,38 +1,14 @@
+import movement
+
 import pygame
 
 
-class Move:
-    def __init__(self, piece, target, board):
-        self.piece = piece
-        self.target = target
-        self.board = board
-        self.executable = self.isValid()
-
-    def __str__(self):
-        return self.piece.getLetter() + str(self.piece.getSquare()) + str(self.target)
-
-    def isValid(self):
-        if self.piece.isValid(self.target, self.board):
-            return True
-        return False
-
-    def execute(self):
-        if self.executable:
-            targetPiece = self.board.getPieceAt(self.target)
-            if targetPiece:
-                targetPiece.setTaken()
-            self.piece.setSquare(self.target)
-
-            self.executable = False
-
-
 class Human:
-    def __init__(self, colour, board):
+    def __init__(self, colour):
         self.colour = colour
-        self.board = board
         self.selectedPiece = None
 
-    def listen(self, win):
+    def listen(self, win, game):
         run = True
         while run:
             move = None
@@ -42,35 +18,39 @@ class Human:
                     quit()
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.select(pygame.mouse.get_pos())
+                    self.select(pygame.mouse.get_pos(), game)
 
                 if event.type == pygame.MOUSEBUTTONUP:
-                    move = self.deselect(pygame.mouse.get_pos())
+                    move = self.deselect(pygame.mouse.get_pos(), game)
 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        print('Click')
+                    if event.key == pygame.K_BACKSPACE:
+                        if game.undo():
+                            run = False
 
-            if move:
+            if move and move.executable:
                 move.execute()
-            self.board.display(win)
+                run = False
+
+            game.board.display(win)
             pygame.display.update()
 
-    def select(self, location):
+    def select(self, location, game):
         x, y = location
         x = (x - 40) // 100
         y = (y - 40) // 100
-        self.selectedPiece = self.board.getPieceAt((x, y))
-        if self.selectedPiece:
+        self.selectedPiece = game.board.getPieceAt((x, y))
+        if self.selectedPiece and self.selectedPiece.getColour() == self.colour:
             self.selectedPiece.setMoving()
 
-    def deselect(self, location):
+    def deselect(self, location, game):
         x, y = location
         x = (x - 40) // 100
         y = (y - 40) // 100
         piece = self.selectedPiece
         target = (x, y)
-        self.selectedPiece.stopMoving()
-        self.selectedPiece = None
+        if self.selectedPiece and self.selectedPiece.getColour() == self.colour:
+            self.selectedPiece.stopMoving()
+            self.selectedPiece = None
 
-        return Move(piece, target, self.board)
+            return movement.Move(piece, target, game.board)

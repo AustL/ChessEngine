@@ -1,5 +1,5 @@
 from resources import *
-from players import *
+import movement
 
 import pygame
 
@@ -7,12 +7,16 @@ import pygame
 class Piece:
     def __init__(self, square, colour):
         self.square = square
-        self.x, self.y = square
         self.colour = colour
         self.image = None
         self.alive = True
         self.moving = False
+        self.hasMoved = False
         self.letter = '_'
+        self.canBeEnPassant = False
+
+    def isWhite(self):
+        return self.colour == WHITE
 
     def getLetter(self):
         return self.letter
@@ -32,11 +36,29 @@ class Piece:
     def setTaken(self):
         self.alive = False
 
+    def isMoving(self):
+        return self.moving
+
     def setMoving(self):
         self.moving = True
 
     def stopMoving(self):
         self.moving = False
+
+    def getMoved(self):
+        return self.hasMoved
+
+    def setMoved(self):
+        self.hasMoved = True
+
+    def setEnPassant(self):
+        self.canBeEnPassant = True
+
+    def removeEnPassant(self):
+        self.canBeEnPassant = False
+
+    def getEnPassant(self):
+        return self.canBeEnPassant
 
     def sameColourAt(self, square, board):
         piece = board.getPieceAt(square)
@@ -50,24 +72,36 @@ class Piece:
         x, y = square
         return 0 <= x <= 7 and 0 <= y <= 7
 
+    def moveThroughPieces(self, square, board):
+        x, y = square
+        xDirection = x - self.square[0]
+        yDirection = y - self.square[1]
+
+        if xDirection != 0:
+            xDirection //= abs(xDirection)
+        else:
+            xDirection = 0
+
+        if yDirection != 0:
+            yDirection //= abs(yDirection)
+        else:
+            yDirection = 0
+
+        tempX, tempY = self.square
+        tempX += xDirection
+        tempY += yDirection
+        while tempX != x or tempY != y:
+            if board.getPieceAt((tempX, tempY)) is not None:
+                return True
+            tempX += xDirection
+            tempY += yDirection
+
+        return False
+
     def isValid(self, square, board):
         if self.sameColourAt(square, board):
             return False
         return True
-
-    def moveThroughPieces(self, square, board):
-        x, y = square
-        xDirection = (x - self.x) // abs(x - self.x)
-        yDirection = (y - self.y) // abs(y - self.y)
-
-        tempX, tempY = self.square
-        while tempX != x or tempY != y:
-            tempX += xDirection
-            tempY += yDirection
-            if board.getPieceAt((tempX, tempY)) is not None:
-                return True
-
-        return False
 
     def display(self, win):
         if self.alive:
@@ -84,7 +118,7 @@ class King(Piece):
         super().__init__(square, colour)
         self.letter = 'K'
 
-        if self.colour == WHITE:
+        if self.isWhite():
             self.image = W_KING
         else:
             self.image = B_KING
@@ -95,7 +129,7 @@ class King(Piece):
         return clone
 
     def isValid(self, square, board):
-        if self.sameColourAt(square, board) or not self.withinBounds(square):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
             return False
 
         x, y = distance(square, self.square)
@@ -103,8 +137,58 @@ class King(Piece):
         if x == y == 0:
             return False
 
+        # Move One Square
         if abs(x) <= 1 and abs(y) <= 1:
             return True
+
+        # Castling
+        if abs(x) == 2 and y == 0 and not self.hasMoved:
+            # Right
+            if x == 2:
+                rookSquare = (self.square[0] + 3, self.square[1])
+                rook = board.getPieceAt(rookSquare)
+                if rook and not rook.getMoved():
+                    if not self.moveThroughPieces(rookSquare, board) and not self.moveThroughCheck(rookSquare, board):
+                        return True
+
+            # Left
+            elif x == -2:
+                rookSquare = (self.square[0] - 4, self.square[1])
+                rook = board.getPieceAt(rookSquare)
+                if rook and not rook.getMoved():
+                    if not self.moveThroughPieces(rookSquare, board) and not self.moveThroughCheck(rookSquare, board):
+                        return True
+
+        return False
+
+    def moveThroughCheck(self, square, board):
+        x, y = square
+        xDirection = x - self.square[0]
+        yDirection = y - self.square[1]
+
+        if xDirection != 0:
+            xDirection //= abs(xDirection)
+        else:
+            xDirection = 0
+
+        if yDirection != 0:
+            yDirection //= abs(yDirection)
+        else:
+            yDirection = 0
+
+        tempX, tempY = self.square
+        while tempX != x or tempY != y:
+            if self.isWhite():
+                pieces = board.getBlackPieces()
+            else:
+                pieces = board.getWhitePieces()
+
+            for piece in pieces:
+                if piece.isValid((tempX, tempY), board):
+                    return True
+
+            tempX += xDirection
+            tempY += yDirection
 
         return False
 
@@ -112,12 +196,12 @@ class King(Piece):
         moves = []
         for i in range(-1, 2):
             for j in range(-1, 2):
-                x = self.x + i
-                y = self.y + i
+                x = self.square[0] + i
+                y = self.square[1] + i
                 if self.withinBounds((x, y)):
                     if i != 0 or j != 0:
                         if not self.sameColourAt((x, y), board):
-                            moves.append(Move(self, (x, y), board))
+                            moves.append(movement.Move(self, (x, y), board))
 
 
 class Queen(Piece):
@@ -125,7 +209,7 @@ class Queen(Piece):
         super().__init__(square, colour)
         self.letter = 'Q'
 
-        if self.colour == WHITE:
+        if self.isWhite():
             self.image = W_QUEEN
         else:
             self.image = B_QUEEN
@@ -136,7 +220,7 @@ class Queen(Piece):
         return clone
 
     def isValid(self, square, board):
-        if self.sameColourAt(square, board) or not self.withinBounds(square):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
             return False
 
         x, y = distance(square, self.square)
@@ -144,8 +228,19 @@ class Queen(Piece):
         if x == y == 0:
             return False
 
+        # Horizontal
         if x == 0 or y == 0:
-            pass
+            if self.moveThroughPieces(square, board):
+                return False
+            return True
+
+        # Diagonal
+        if abs(x) == abs(y):
+            if self.moveThroughPieces(square, board):
+                return False
+            return True
+
+        return False
 
 
 class Rook(Piece):
@@ -153,7 +248,7 @@ class Rook(Piece):
         super().__init__(square, colour)
         self.letter = 'R'
 
-        if self.colour == WHITE:
+        if self.isWhite():
             self.image = W_ROOK
         else:
             self.image = B_ROOK
@@ -163,21 +258,52 @@ class Rook(Piece):
         clone.alive = self.alive
         return clone
 
+    def isValid(self, square, board):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
+            return False
+
+        x, y = distance(square, self.square)
+
+        if x == y == 0:
+            return False
+
+        # Horizontal
+        if x == 0 or y == 0:
+            if self.moveThroughPieces(square, board):
+                return False
+            return True
+
+        return False
+
 
 class Knight(Piece):
     def __init__(self, square, colour):
         super().__init__(square, colour)
         self.letter = 'N'
 
-        if self.colour == WHITE:
+        if self.isWhite():
             self.image = W_KNIGHT
         else:
             self.image = B_KNIGHT
 
     def clone(self):
-        clone = Rook(self.square, self.colour)
+        clone = Knight(self.square, self.colour)
         clone.alive = self.alive
         return clone
+
+    def isValid(self, square, board):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
+            return False
+
+        x, y = distance(square, self.square)
+
+        if x == y == 0:
+            return False
+
+        # L-Shaped Moves
+        if (abs(x) == 1 and abs(y) == 2) or (abs(x) == 2 and abs(y) == 1):
+            return True
+        return False
 
 
 class Bishop(Piece):
@@ -185,7 +311,7 @@ class Bishop(Piece):
         super().__init__(square, colour)
         self.letter = 'B'
 
-        if self.colour == WHITE:
+        if self.isWhite():
             self.image = W_BISHOP
         else:
             self.image = B_BISHOP
@@ -195,13 +321,30 @@ class Bishop(Piece):
         clone.alive = self.alive
         return clone
 
+    def isValid(self, square, board):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
+            return False
+
+        x, y = distance(square, self.square)
+
+        if x == y == 0:
+            return False
+
+        # Diagonal
+        if abs(x) == abs(y):
+            if self.moveThroughPieces(square, board):
+                return False
+            return True
+
+        return False
+
 
 class Pawn(Piece):
     def __init__(self, square, colour):
         super().__init__(square, colour)
         self.letter = 'P'
 
-        if self.colour == WHITE:
+        if self.isWhite():
             self.image = W_PAWN
         else:
             self.image = B_PAWN
@@ -209,7 +352,44 @@ class Pawn(Piece):
     def clone(self):
         clone = Pawn(self.square, self.colour)
         clone.alive = self.alive
+        clone.canBeEnPassant = self.canBeEnPassant
         return clone
+
+    def isValid(self, square, board):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
+            return False
+
+        x, y = distance(square, self.square)
+
+        if x == y == 0:
+            return False
+
+        # Diagonal Attacking
+        if abs(x) == abs(y) == 1:
+            attacking = board.getPieceAt(square)
+            if attacking:
+                if (self.isWhite() and y == -1) or (not self.isWhite() and y == 1):
+                    return True
+            else:
+                adjacent = (self.square[0] + x, self.square[1])
+                adjacentPiece = board.getPieceAt(adjacent)
+                if adjacentPiece and adjacentPiece.getEnPassant() and not self.sameColourAt(adjacent, board):
+                    return True
+            return False
+
+        # Forward
+        if x == 0:
+            # Single Move
+            if (self.isWhite() and y == -1) or (not self.isWhite() and y == 1):
+                return True
+
+            # Double Move
+            if ((self.isWhite() and y == -2) or (not self.isWhite() and y == 2)) and not self.hasMoved:
+                if self.moveThroughPieces(square, board):
+                    return False
+                return True
+
+            return False
 
 
 def distance(start, end):
