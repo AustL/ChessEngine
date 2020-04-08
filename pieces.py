@@ -2,9 +2,10 @@ from resources import *
 import movement
 
 import pygame
+from abc import abstractmethod, ABC
 
 
-class Piece:
+class Piece(ABC):
     def __init__(self, square, colour):
         self.square = square
         self.colour = colour
@@ -98,10 +99,9 @@ class Piece:
 
         return False
 
+    @abstractmethod
     def isValid(self, square, board):
-        if self.sameColourAt(square, board):
-            return False
-        return True
+        pass
 
     def display(self, win):
         if self.alive:
@@ -111,6 +111,28 @@ class Piece:
             else:
                 x, y = pygame.mouse.get_pos()
                 win.blit(self.image, (x - 30, y - 20))
+
+    def generateBoards(self, board):
+        boards = []
+        moves = self.generateMoves(board)
+        for target in moves:
+            newBoard = board.clone()
+            move = movement.Move(self.clone(), target, newBoard)
+            if move.executable:
+                move.execute()
+                boards.append(newBoard)
+            else:
+                print('Generate Moves Failed:', move)
+
+        return boards
+
+    @abstractmethod
+    def generateMoves(self, board):
+        pass
+
+    @abstractmethod
+    def clone(self):
+        pass
 
 
 class King(Piece):
@@ -197,11 +219,20 @@ class King(Piece):
         for i in range(-1, 2):
             for j in range(-1, 2):
                 x = self.square[0] + i
-                y = self.square[1] + i
+                y = self.square[1] + j
                 if self.withinBounds((x, y)):
                     if i != 0 or j != 0:
                         if not self.sameColourAt((x, y), board):
-                            moves.append(movement.Move(self, (x, y), board))
+                            moves.append((x, y))
+
+        # Castling
+        for i in (-2, 2):
+            x = self.square[0] + i
+            y = self.square[1]
+            if self.isValid((x, y), board):
+                moves.append((x, y))
+
+        return moves
 
 
 class Queen(Piece):
@@ -228,7 +259,7 @@ class Queen(Piece):
         if x == y == 0:
             return False
 
-        # Horizontal
+        # Horizontal and Vertical
         if x == 0 or y == 0:
             if self.moveThroughPieces(square, board):
                 return False
@@ -241,6 +272,50 @@ class Queen(Piece):
             return True
 
         return False
+
+    def generateMoves(self, board):
+        moves = []
+
+        # Horizontal
+        for i in range(8):
+            x = i
+            y = self.square[1]
+            if x != self.square[0]:
+                if not self.sameColourAt((x, y), board):
+                    if not self.moveThroughPieces((x, y), board):
+                        if self.withinBounds((x, y)):
+                            moves.append((x, y))
+
+        # Vertical
+        for i in range(8):
+            x = self.square[0]
+            y = i
+            if y != self.square[1]:
+                if not self.sameColourAt((x, y), board):
+                    if not self.moveThroughPieces((x, y), board):
+                        if self.withinBounds((x, y)):
+                            moves.append((x, y))
+
+        # Diagonal
+        for i in range(8):
+            x = i
+            y = self.square[1] - (self.square[0] - i)
+            if x != self.square[0]:
+                if not self.sameColourAt((x, y), board):
+                    if not self.moveThroughPieces((x, y), board):
+                        if self.withinBounds((x, y)):
+                            moves.append((x, y))
+
+        for i in range(8):
+            x = self.square[0] + (self.square[1] - i)
+            y = i
+            if x != self.square[0]:
+                if not self.sameColourAt((x, y), board):
+                    if not self.moveThroughPieces((x, y), board):
+                        if self.withinBounds((x, y)):
+                            moves.append((x, y))
+
+        return moves
 
 
 class Rook(Piece):
@@ -275,6 +350,31 @@ class Rook(Piece):
 
         return False
 
+    def generateMoves(self, board):
+        moves = []
+
+        # Horizontal
+        for i in range(8):
+            x = i
+            y = self.square[1]
+            if x != self.square[0]:
+                if not self.sameColourAt((x, y), board):
+                    if not self.moveThroughPieces((x, y), board):
+                        if self.withinBounds((x, y)):
+                            moves.append((x, y))
+
+        # Vertical
+        for i in range(8):
+            x = self.square[0]
+            y = i
+            if y != self.square[1]:
+                if not self.sameColourAt((x, y), board):
+                    if not self.moveThroughPieces((x, y), board):
+                        if self.withinBounds((x, y)):
+                            moves.append((x, y))
+
+        return moves
+
 
 class Knight(Piece):
     def __init__(self, square, colour):
@@ -304,6 +404,18 @@ class Knight(Piece):
         if (abs(x) == 1 and abs(y) == 2) or (abs(x) == 2 and abs(y) == 1):
             return True
         return False
+
+    def generateMoves(self, board):
+        moves = []
+
+        for i, j in ((-1, -2), (1, -2), (2, -1), (2, 1), (1, 2), (-1, 2), (-2, 1), (-2, -1)):
+            x = self.square[0] + i
+            y = self.square[1] + j
+            if self.withinBounds((x, y)):
+                if not self.sameColourAt((x, y), board):
+                    moves.append((x, y))
+
+        return moves
 
 
 class Bishop(Piece):
@@ -338,6 +450,30 @@ class Bishop(Piece):
 
         return False
 
+    def generateMoves(self, board):
+        moves = []
+
+        # Diagonal
+        for i in range(8):
+            x = i
+            y = self.square[1] - (self.square[0] - i)
+            if x != self.square[0]:
+                if not self.sameColourAt((x, y), board):
+                    if not self.moveThroughPieces((x, y), board):
+                        if self.withinBounds((x, y)):
+                            moves.append((x, y))
+
+        for i in range(8):
+            x = self.square[0] + (self.square[1] - i)
+            y = i
+            if x != self.square[0]:
+                if not self.sameColourAt((x, y), board):
+                    if not self.moveThroughPieces((x, y), board):
+                        if self.withinBounds((x, y)):
+                            moves.append((x, y))
+
+        return moves
+
 
 class Pawn(Piece):
     def __init__(self, square, colour):
@@ -371,6 +507,7 @@ class Pawn(Piece):
                 if (self.isWhite() and y == -1) or (not self.isWhite() and y == 1):
                     return True
             else:
+                # En Passant
                 adjacent = (self.square[0] + x, self.square[1])
                 adjacentPiece = board.getPieceAt(adjacent)
                 if adjacentPiece and adjacentPiece.getEnPassant() and not self.sameColourAt(adjacent, board):
@@ -389,7 +526,49 @@ class Pawn(Piece):
                     return False
                 return True
 
-            return False
+        return False
+
+    def generateMoves(self, board):
+        moves = []
+
+        # Single Move
+        for i in range(-1, 2):
+            x = self.square[0] + i
+            if self.isWhite():
+                y = self.square[1] - 1
+            else:
+                y = self.square[1] + 1
+
+            if abs(i) == 1:
+                # Taking Piece
+                attacking = board.getPieceAt((x, y))
+                if attacking and not self.sameColourAt((x, y), board):
+                    moves.append((x, y))
+                else:
+                    # En Passant
+                    adjacent = (x, self.square[1])
+                    adjacentPiece = board.getPieceAt(adjacent)
+                    if adjacentPiece and adjacentPiece.getEnPassant() and not self.sameColourAt(adjacent, board):
+                        moves.append((x, y))
+
+            # Move Forward
+            elif i == 0:
+                if board.getPieceAt((x, y)) is None and self.withinBounds((x, y)):
+                    moves.append((x, y))
+
+        # Double Move
+        if not self.hasMoved:
+            if self.isWhite():
+                y = self.square[1] - 2
+            else:
+                y = self.square[1] + 2
+
+            x = self.square[0]
+
+            if board.getPieceAt((x, y)) is None and not self.moveThroughPieces((x, y), board):
+                moves.append((x, y))
+
+        return moves
 
 
 def distance(start, end):

@@ -42,6 +42,7 @@ class Human:
         self.selectedPiece = game.board.getPieceAt((x, y))
         if self.selectedPiece and self.selectedPiece.getColour() == self.colour:
             self.selectedPiece.setMoving()
+            print(self.selectedPiece.generateMoves(game.board))
 
     def deselect(self, location, game):
         x, y = location
