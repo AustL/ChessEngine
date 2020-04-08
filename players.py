@@ -20,7 +20,7 @@ class Move:
             self.executable = False
 
     def __str__(self):
-        return self.piece.getLetter() + str(self.piece.getSquare()) + str(self.target)
+        return f'{self.piece.getLetter()}: {self.piece.getSquare()} --> {self.target}'
 
     def isValid(self):
         if self.piece.isValid(self.target, self.board):
@@ -28,14 +28,6 @@ class Move:
         return False
 
     def checkSpecialMoves(self):
-        # En Passant
-        if isinstance(self.piece, pieces.Pawn):
-            x, y = pieces.distance(self.target, self.piece.getSquare())
-            if abs(y) == 2:
-                self.piece.setEnPassant()
-            if abs(x) == abs(y):
-                self.board.getPieceAt((self.piece.getSquare()[0] + x, self.piece.getSquare()[1])).setTaken()
-
         # Castling
         if isinstance(self.piece, pieces.King):
             x, y = pieces.distance(self.target, self.piece.getSquare())
@@ -54,6 +46,25 @@ class Move:
                     if rook:
                         rook.setSquare(targetSquare)
                         rook.setMoved()
+
+        if isinstance(self.piece, pieces.Pawn):
+            # En Passant
+            x, y = pieces.distance(self.target, self.piece.getSquare())
+            if abs(y) == 2:
+                self.piece.setEnPassant()
+
+            adjacentSquare = (self.piece.getSquare()[0] + x, self.piece.getSquare()[1])
+            adjacentPiece = self.board.getPieceAt(adjacentSquare)
+            if abs(x) == abs(y) == 1 and not self.board.getPieceAt(self.target) and adjacentPiece:
+                adjacentPiece.setTaken()
+
+            # Promotion
+            x, y = self.target
+            if y == 0 or y == 7:
+                oldPiece = self.piece
+                self.piece = pieces.Queen(oldPiece.getSquare(), oldPiece.getColour())
+                self.piece.setMoved()
+                self.board.replacePiece(oldPiece, self.piece)
 
     def execute(self):
         if self.executable:

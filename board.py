@@ -67,6 +67,18 @@ class Board:
     def getBlackPieces(self):
         return self.blackPieces
 
+    def replacePiece(self, oldPiece, newPiece):
+        for i, piece in enumerate(self.whitePieces):
+            if piece is oldPiece:
+                self.whitePieces[i] = newPiece
+
+        for i, piece in enumerate(self.blackPieces):
+            if piece is oldPiece:
+                self.blackPieces[i] = newPiece
+
+        del oldPiece
+
+
     def clone(self):
         cloneWhitePieces = [piece.clone() for piece in self.whitePieces]
         cloneBlackPieces = [piece.clone() for piece in self.blackPieces]
