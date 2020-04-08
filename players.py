@@ -1,3 +1,5 @@
+import pieces
+
 import pygame
 
 
@@ -28,6 +30,13 @@ class Move:
             targetPiece = self.board.getPieceAt(self.target)
             if targetPiece:
                 targetPiece.setTaken()
+
+            if isinstance(self.piece, pieces.Pawn):
+                x, y = pieces.distance(self.target, self.piece.getSquare())
+                if abs(y) == 2:
+                    self.piece.setEnPassant()
+                if abs(x) == abs(y):
+                    self.board.getPieceAt((self.piece.getSquare()[0] + x, self.piece.getSquare()[1])).setTaken()
 
             self.piece.setSquare(self.target)
             self.piece.setMoved()

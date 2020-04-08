@@ -1,5 +1,5 @@
 from resources import *
-from players import *
+import players
 
 import pygame
 
@@ -13,6 +13,7 @@ class Piece:
         self.moving = False
         self.hasMoved = False
         self.letter = '_'
+        self.canBeEnPassant = False
 
     def isWhite(self):
         return self.colour == WHITE
@@ -50,6 +51,15 @@ class Piece:
     def setMoved(self):
         self.hasMoved = True
 
+    def setEnPassant(self):
+        self.canBeEnPassant = True
+
+    def removeEnPassant(self):
+        self.canBeEnPassant = False
+
+    def getEnPassant(self):
+        return self.canBeEnPassant
+
     def sameColourAt(self, square, board):
         piece = board.getPieceAt(square)
         if piece and piece.getColour() == self.colour:
@@ -61,11 +71,6 @@ class Piece:
     def withinBounds(square):
         x, y = square
         return 0 <= x <= 7 and 0 <= y <= 7
-
-    def isValid(self, square, board):
-        if self.sameColourAt(square, board):
-            return False
-        return True
 
     def moveThroughPieces(self, square, board):
         x, y = square
@@ -92,6 +97,11 @@ class Piece:
             tempY += yDirection
 
         return False
+
+    def isValid(self, square, board):
+        if self.sameColourAt(square, board):
+            return False
+        return True
 
     def display(self, win):
         if self.alive:
@@ -141,7 +151,7 @@ class King(Piece):
                 if self.withinBounds((x, y)):
                     if i != 0 or j != 0:
                         if not self.sameColourAt((x, y), board):
-                            moves.append(Move(self, (x, y), board))
+                            moves.append(players.Move(self, (x, y), board))
 
 
 class Queen(Piece):
@@ -292,6 +302,7 @@ class Pawn(Piece):
     def clone(self):
         clone = Pawn(self.square, self.colour)
         clone.alive = self.alive
+        clone.canBeEnPassant = self.canBeEnPassant
         return clone
 
     def isValid(self, square, board):
@@ -304,10 +315,15 @@ class Pawn(Piece):
             return False
 
         # Diagonal Attacking
-        attacking = board.getPieceAt(square)
-        if attacking:
-            if abs(x) == abs(y) == 1:
+        if abs(x) == abs(y) == 1:
+            attacking = board.getPieceAt(square)
+            if attacking:
                 if (self.isWhite() and y == -1) or (not self.isWhite() and y == 1):
+                    return True
+            else:
+                adjacent = (self.square[0] + x, self.square[1])
+                adjacentPiece = board.getPieceAt(adjacent)
+                if adjacentPiece and adjacentPiece.getEnPassant() and not self.sameColourAt(adjacent, board):
                     return True
             return False
 

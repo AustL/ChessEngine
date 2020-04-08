@@ -1,5 +1,6 @@
-from board import *
-from players import *
+import board
+import players
+from resources import *
 
 import pygame
 import os
@@ -7,9 +8,9 @@ import os
 
 class Game:
     def __init__(self):
-        self.board = Board()
-        self.white = Human(WHITE, self.board)
-        self.black = Human(BLACK, self.board)
+        self.board = board.Board()
+        self.white = players.Human(WHITE, self.board)
+        self.black = players.Human(BLACK, self.board)
 
     def run(self):
         self.white.listen(win)
