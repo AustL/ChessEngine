@@ -1,5 +1,5 @@
 from resources import *
-import players
+import movement
 
 import pygame
 
@@ -129,7 +129,7 @@ class King(Piece):
         return clone
 
     def isValid(self, square, board):
-        if self.sameColourAt(square, board) or not self.withinBounds(square):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
             return False
 
         x, y = distance(square, self.square)
@@ -201,7 +201,7 @@ class King(Piece):
                 if self.withinBounds((x, y)):
                     if i != 0 or j != 0:
                         if not self.sameColourAt((x, y), board):
-                            moves.append(players.Move(self, (x, y), board))
+                            moves.append(movement.Move(self, (x, y), board))
 
 
 class Queen(Piece):
@@ -220,7 +220,7 @@ class Queen(Piece):
         return clone
 
     def isValid(self, square, board):
-        if self.sameColourAt(square, board) or not self.withinBounds(square):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
             return False
 
         x, y = distance(square, self.square)
@@ -259,7 +259,7 @@ class Rook(Piece):
         return clone
 
     def isValid(self, square, board):
-        if self.sameColourAt(square, board) or not self.withinBounds(square):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
             return False
 
         x, y = distance(square, self.square)
@@ -292,7 +292,7 @@ class Knight(Piece):
         return clone
 
     def isValid(self, square, board):
-        if self.sameColourAt(square, board) or not self.withinBounds(square):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
             return False
 
         x, y = distance(square, self.square)
@@ -322,7 +322,7 @@ class Bishop(Piece):
         return clone
 
     def isValid(self, square, board):
-        if self.sameColourAt(square, board) or not self.withinBounds(square):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
             return False
 
         x, y = distance(square, self.square)
@@ -356,7 +356,7 @@ class Pawn(Piece):
         return clone
 
     def isValid(self, square, board):
-        if self.sameColourAt(square, board) or not self.withinBounds(square):
+        if self.sameColourAt(square, board) or not self.withinBounds(square) or not self.alive:
             return False
 
         x, y = distance(square, self.square)

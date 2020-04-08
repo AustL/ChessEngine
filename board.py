@@ -78,6 +78,20 @@ class Board:
 
         del oldPiece
 
+    def isLegalMove(self, colour):
+        if colour == WHITE:
+            enemyPieces = self.blackPieces
+            king = self.whitePieces[8]
+        else:
+            enemyPieces = self.whitePieces
+            king = self.blackPieces[8]
+
+        kingSquare = king.getSquare()
+        for piece in enemyPieces:
+            if piece.isValid(kingSquare, self):
+                return False
+
+        return True
 
     def clone(self):
         cloneWhitePieces = [piece.clone() for piece in self.whitePieces]
