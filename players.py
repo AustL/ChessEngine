@@ -6,7 +6,13 @@ class Move:
         self.piece = piece
         self.target = target
         self.board = board
-        self.executable = self.isValid()
+        self.executable = True
+
+        if not self.piece or not self.target:
+            print('Move arguments not valid!')
+            print('Piece:', self.piece)
+            print('Target', self.target)
+            self.executable = False
 
     def __str__(self):
         return self.piece.getLetter() + str(self.piece.getSquare()) + str(self.target)
@@ -17,12 +23,14 @@ class Move:
         return False
 
     def execute(self):
-        if self.executable:
+        if self.executable and self.isValid():
+            print('Move:', self)
             targetPiece = self.board.getPieceAt(self.target)
             if targetPiece:
                 targetPiece.setTaken()
-            self.piece.setSquare(self.target)
 
+            self.piece.setSquare(self.target)
+            self.piece.setMoved()
             self.executable = False
 
 
@@ -70,7 +78,8 @@ class Human:
         y = (y - 40) // 100
         piece = self.selectedPiece
         target = (x, y)
-        self.selectedPiece.stopMoving()
+        if self.selectedPiece:
+            self.selectedPiece.stopMoving()
         self.selectedPiece = None
 
         return Move(piece, target, self.board)

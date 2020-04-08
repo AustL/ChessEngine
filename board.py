@@ -10,12 +10,20 @@ class Board:
 
     def display(self, win):
         win.blit(CHESSBOARD, (0, 0))
+        hoveringPiece = None
 
         for piece in self.whitePieces:
+            if piece.isMoving():
+                hoveringPiece = piece
             piece.display(win)
 
         for piece in self.blackPieces:
+            if piece.isMoving():
+                hoveringPiece = piece
             piece.display(win)
+
+        if hoveringPiece:
+            hoveringPiece.display(win)
 
     def createPieces(self):
         whitePieces = {
