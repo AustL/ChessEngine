@@ -16,6 +16,12 @@ class Piece(ABC):
         self.letter = '_'
         self.canBeEnPassant = False
 
+    def __eq__(self, other):
+        if self.square == other.square and self.colour == other.colour:
+            return True
+
+        return False
+
     def isWhite(self):
         return self.colour == WHITE
 

@@ -10,6 +10,17 @@ class Board:
         self.turn = WHITE
         self.createPieces()
 
+    def __eq__(self, other):
+        for piece1, piece2 in zip(self.whitePieces, other.whitePieces):
+            if piece1 != piece2:
+                return False
+
+        for piece1, piece2 in zip(self.blackPieces, other.blackPieces):
+            if piece1 != piece2:
+                return False
+
+        return True
+
     def display(self, win):
         win.blit(CHESSBOARD, (0, 0))
         hoveringPiece = None
@@ -148,9 +159,13 @@ class Board:
 
         return True
 
-    def isThreefoldRepetition(self, colour):
-        # Colour is side that last moved
-        pass
+    @staticmethod
+    def isThreefoldRepetition(game):
+        for board in game.history:
+            if game.history.count(board) >= 3:
+                return True
+
+        return False
 
     def isInCheck(self, colour):
         # Colour is side in check
@@ -163,8 +178,7 @@ class Board:
 
         kingSquare = king.getSquare()
         for piece in enemyPieces:
-            move = movement.Move(piece, kingSquare, self)
-            if move.executable:
+            if piece.isValid(kingSquare, self):
                 return True
 
         return False

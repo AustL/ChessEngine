@@ -19,25 +19,23 @@ class Game:
         while run:
             self.history.append(self.board.clone())
             self.white.listen(win, self)
-            print(self.checkEndGame(WHITE))
+            self.checkEndGame(WHITE)
             self.history.append(self.board.clone())
             self.black.listen(win, self)
-            print(self.checkEndGame(BLACK))
+            self.checkEndGame(BLACK)
 
     def checkEndGame(self, colour):
         if self.board.isCheckmate(colour):
-            return 'Checkmate!'
+            print('Checkmate!')
 
         if self.board.isStalemate(colour):
-            return 'Stalemate!'
+            print('Stalemate!')
 
         if self.board.isInsufficientMaterial():
-            return 'Insufficient Material!'
+            print('Insufficient Material!')
 
-        if self.board.isThreefoldRepetition(colour):
-            return 'Threefold Repetition!'
-
-        return 'Play On!'
+        if self.board.isThreefoldRepetition(self):
+            print('Threefold Repetition!')
 
     def undo(self):
         if len(self.history) > 1:
