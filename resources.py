@@ -1,4 +1,4 @@
-import pygame
+import pygame.image
 
 # Images
 CHESSBOARD = pygame.image.load('images/CHESSBOARD.png')

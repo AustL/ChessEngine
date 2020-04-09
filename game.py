@@ -2,8 +2,9 @@ import board
 import players
 from resources import *
 
-import pygame
-import os
+import pygame.display
+from pygame import init
+from os import environ
 from collections import deque
 
 
@@ -45,8 +46,8 @@ class Game:
 
 
 if __name__ == '__main__':
-    os.environ['SDL_VIDEO_CENTERED'] = '1'
-    pygame.init()
+    environ['SDL_VIDEO_CENTERED'] = '1'
+    init()
     win = pygame.display.set_mode((880, 880))
 
     game = Game()

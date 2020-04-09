@@ -1,9 +1,9 @@
 import movement
 from resources import *
 
-import pygame
-import random
-import math
+import pygame.event
+from random import choice
+from math import inf
 
 
 class Human:
@@ -96,7 +96,7 @@ class Computer:
 
         boards = board.generateAllBoards(colour)
         bestBoards = []
-        bestScore = -math.inf
+        bestScore = -inf
 
         for newBoard in boards:
             score = self.minFunction(newBoard, alpha, beta, depth + 1, switch(colour))
@@ -112,7 +112,7 @@ class Computer:
             alpha = max(alpha, score)
 
         if depth == 0:
-            return random.choice(bestBoards)
+            return choice(bestBoards)
 
         return bestScore
 
@@ -130,7 +130,7 @@ class Computer:
 
         boards = board.generateAllBoards(colour)
         worstBoards = []
-        worstScore = math.inf
+        worstScore = inf
 
         for newBoard in boards:
             score = self.maxFunction(newBoard, alpha, beta, depth + 1, switch(colour))
@@ -146,6 +146,6 @@ class Computer:
             beta = min(alpha, score)
 
         if depth == 0:
-            return random.choice(worstBoards)
+            return choice(worstBoards)
 
         return worstScore
