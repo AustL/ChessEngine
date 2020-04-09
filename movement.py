@@ -34,7 +34,7 @@ class Move:
             testPiece.setSquare(self.target)
             testPiece.setMoved()
 
-            if self.testBoard.isLegalMove(testPiece.getColour()):
+            if not self.testBoard.isInCheck(testPiece.getColour()):
                 return True
         return False
 
@@ -81,11 +81,10 @@ class Move:
 
     def execute(self):
         if self.executable:
+            self.checkSpecialMoves(self.piece, self.board)
             targetPiece = self.board.getPieceAt(self.target)
             if targetPiece:
                 targetPiece.setTaken()
-
-            self.checkSpecialMoves(self.piece, self.board)
             self.piece.setSquare(self.target)
             self.piece.setMoved()
             self.executable = False

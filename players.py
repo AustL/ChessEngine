@@ -28,10 +28,11 @@ class Human:
                         if game.undo():
                             run = False
 
-            if move and move.executable:
-                move.execute()
-                print('Move:', move)
-                run = False
+            if move:
+                if move.executable:
+                    move.execute()
+                    print('Move:', move)
+                    run = False
 
             game.board.display(win)
             pygame.display.update()
@@ -43,7 +44,7 @@ class Human:
         self.selectedPiece = game.board.getPieceAt((x, y))
         if self.selectedPiece and self.selectedPiece.getColour() == self.colour:
             self.selectedPiece.setMoving()
-            print('Possible Moves:', self.selectedPiece.generateMoves(game.board))
+            # print('Possible Moves:', self.selectedPiece.generateMoves(game.board))
 
     def deselect(self, location, game):
         x, y = location
