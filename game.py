@@ -19,8 +19,12 @@ class Game:
         while run:
             self.history.append(self.board.clone())
             self.white.listen(win, self)
+            if self.board.isCheckmate(WHITE):
+                print('Checkmate! Winner: WHITE')
             self.history.append(self.board.clone())
             self.black.listen(win, self)
+            if self.board.isCheckmate(BLACK):
+                print('Checkmate! Winner: BLACK')
 
     def undo(self):
         if len(self.history) > 1:

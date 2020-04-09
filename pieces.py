@@ -121,8 +121,6 @@ class Piece(ABC):
             if move.executable:
                 move.execute()
                 boards.append(newBoard)
-            else:
-                print('Generate Moves Failed:', move)
 
         return boards
 
