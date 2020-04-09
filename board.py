@@ -1,4 +1,5 @@
 import pieces
+import movement
 from resources import *
 
 
@@ -8,6 +9,17 @@ class Board:
         self.blackPieces = []
         self.turn = WHITE
         self.createPieces()
+
+    def __eq__(self, other):
+        for piece1, piece2 in zip(self.whitePieces, other.whitePieces):
+            if piece1 != piece2:
+                return False
+
+        for piece1, piece2 in zip(self.blackPieces, other.blackPieces):
+            if piece1 != piece2:
+                return False
+
+        return True
 
     def display(self, win):
         win.blit(CHESSBOARD, (0, 0))
@@ -80,22 +92,83 @@ class Board:
 
     def isCheckmate(self, colour):
         # Colour is colour of piece that just moved
+        if not self.isInCheck(switch(colour)):
+            return False
+
         if colour == WHITE:
-            pieces = self.blackPieces
+            enemyPieces = self.blackPieces
         else:
-            pieces = self.whitePieces
+            enemyPieces = self.whitePieces
 
         boards = []
-        for piece in pieces:
+        for piece in enemyPieces:
             boards.extend(piece.generateBoards(self))
 
         if boards:
             return False
-        
+
         return True
 
-    def isLegalMove(self, colour):
-        # Colour is colour of piece that just moved
+    def isInsufficientMaterial(self):
+        if self.isInsufficientMaterialFor(WHITE) and self.isInsufficientMaterialFor(BLACK):
+            return True
+
+        return False
+
+    def isInsufficientMaterialFor(self, colour):
+        if colour == WHITE:
+            colourPieces = self.whitePieces
+        else:
+            colourPieces = self.blackPieces
+
+        alivePieces = {}
+
+        for piece in colourPieces:
+            if piece.isAlive():
+                alivePieces[type(piece)] = alivePieces.get(type(piece), 0) + 1
+
+        if (pieces.Queen not in alivePieces) and (pieces.Rook not in alivePieces) and (pieces.Pawn not in alivePieces):
+            # King
+            if (pieces.Bishop not in alivePieces) and (pieces.Knight not in alivePieces):
+                return True
+
+            # King and up to 2 Knights
+            elif (pieces.Bishop not in alivePieces) and alivePieces[pieces.Knight] < 3:
+                return True
+
+            # King and Bishop
+            elif (pieces.Knight not in alivePieces) and alivePieces[pieces.Bishop] == 1:
+                return True
+
+    def isStalemate(self, colour):
+        # Colour is side that last moved
+        if self.isInCheck(switch(colour)):
+            return False
+
+        if colour == WHITE:
+            enemyPieces = self.blackPieces
+        else:
+            enemyPieces = self.whitePieces
+
+        boards = []
+        for piece in enemyPieces:
+            boards.extend(piece.generateBoards(self))
+
+        if boards:
+            return False
+
+        return True
+
+    @staticmethod
+    def isThreefoldRepetition(game):
+        for board in game.history:
+            if game.history.count(board) >= 3:
+                return True
+
+        return False
+
+    def isInCheck(self, colour):
+        # Colour is side in check
         if colour == WHITE:
             enemyPieces = self.blackPieces
             king = self.whitePieces[8]
@@ -106,9 +179,9 @@ class Board:
         kingSquare = king.getSquare()
         for piece in enemyPieces:
             if piece.isValid(kingSquare, self):
-                return False
+                return True
 
-        return True
+        return False
 
     def clone(self):
         cloneWhitePieces = [piece.clone() for piece in self.whitePieces]

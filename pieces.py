@@ -16,6 +16,12 @@ class Piece(ABC):
         self.letter = '_'
         self.canBeEnPassant = False
 
+    def __eq__(self, other):
+        if self.square == other.square and self.colour == other.colour:
+            return True
+
+        return False
+
     def isWhite(self):
         return self.colour == WHITE
 
@@ -146,6 +152,7 @@ class King(Piece):
     def clone(self):
         clone = King(self.square, self.colour)
         clone.alive = self.alive
+        clone.hasMoved = self.hasMoved
         return clone
 
     def isValid(self, square, board):
@@ -246,6 +253,7 @@ class Queen(Piece):
     def clone(self):
         clone = Queen(self.square, self.colour)
         clone.alive = self.alive
+        clone.hasMoved = self.hasMoved
         return clone
 
     def isValid(self, square, board):
@@ -329,6 +337,7 @@ class Rook(Piece):
     def clone(self):
         clone = Rook(self.square, self.colour)
         clone.alive = self.alive
+        clone.hasMoved = self.hasMoved
         return clone
 
     def isValid(self, square, board):
@@ -387,6 +396,7 @@ class Knight(Piece):
     def clone(self):
         clone = Knight(self.square, self.colour)
         clone.alive = self.alive
+        clone.hasMoved = self.hasMoved
         return clone
 
     def isValid(self, square, board):
@@ -429,6 +439,7 @@ class Bishop(Piece):
     def clone(self):
         clone = Bishop(self.square, self.colour)
         clone.alive = self.alive
+        clone.hasMoved = self.hasMoved
         return clone
 
     def isValid(self, square, board):
@@ -487,6 +498,7 @@ class Pawn(Piece):
         clone = Pawn(self.square, self.colour)
         clone.alive = self.alive
         clone.canBeEnPassant = self.canBeEnPassant
+        clone.hasMoved = self.hasMoved
         return clone
 
     def isValid(self, square, board):
@@ -498,9 +510,10 @@ class Pawn(Piece):
         if x == y == 0:
             return False
 
+        attacking = board.getPieceAt(square)
+
         # Diagonal Attacking
         if abs(x) == abs(y) == 1:
-            attacking = board.getPieceAt(square)
             if attacking:
                 if (self.isWhite() and y == -1) or (not self.isWhite() and y == 1):
                     return True
@@ -516,13 +529,15 @@ class Pawn(Piece):
         if x == 0:
             # Single Move
             if (self.isWhite() and y == -1) or (not self.isWhite() and y == 1):
-                return True
+                if attacking is None:
+                    return True
+                return False
 
             # Double Move
             if ((self.isWhite() and y == -2) or (not self.isWhite() and y == 2)) and not self.hasMoved:
-                if self.moveThroughPieces(square, board):
-                    return False
-                return True
+                if not self.moveThroughPieces(square, board) and attacking is None:
+                    return True
+                return False
 
         return False
 
