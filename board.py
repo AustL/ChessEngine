@@ -78,7 +78,24 @@ class Board:
 
         del oldPiece
 
+    def isCheckmate(self, colour):
+        # Colour is colour of piece that just moved
+        if colour == WHITE:
+            pieces = self.blackPieces
+        else:
+            pieces = self.whitePieces
+
+        boards = []
+        for piece in pieces:
+            boards.extend(piece.generateBoards(self))
+
+        if boards:
+            return False
+        
+        return True
+
     def isLegalMove(self, colour):
+        # Colour is colour of piece that just moved
         if colour == WHITE:
             enemyPieces = self.blackPieces
             king = self.whitePieces[8]

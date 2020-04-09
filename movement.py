@@ -79,7 +79,6 @@ class Move:
 
     def execute(self):
         if self.executable:
-            print('Move:', self)
             targetPiece = self.board.getPieceAt(self.target)
             if targetPiece:
                 targetPiece.setTaken()
