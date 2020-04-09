@@ -11,7 +11,7 @@ class Game:
     def __init__(self):
         self.board = board.Board()
         self.white = players.Human(WHITE)
-        self.black = players.Computer(BLACK, 3)
+        self.black = players.Computer(BLACK, 2)
         self.history = deque()
 
     def run(self):

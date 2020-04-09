@@ -1,5 +1,4 @@
 import pieces
-import game
 from resources import *
 
 
@@ -214,6 +213,8 @@ class Board:
     def evaluate(self, colour):
         # Colour is side that is maximising
         score = 0
+
+        # Material
         for piece in self.whitePieces:
             score += piece.getValue()
 

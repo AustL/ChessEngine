@@ -3,6 +3,7 @@ from resources import *
 
 import pygame
 import random
+import math
 
 
 class Human:
@@ -32,7 +33,6 @@ class Human:
 
             if move:
                 if move.executable:
-                    print('Move:', move)
                     move.execute()
                     run = False
 
@@ -76,6 +76,7 @@ class Computer:
             print('Thinking...')
             board = self.maxFunction(game.board, -400, 400, 0, self.colour)
             game.board = board
+            print('Moved!')
             run = False
 
             game.board.display(win)
@@ -89,13 +90,13 @@ class Computer:
         # If position is lost for side to move
         if board.isCheckmate(switch(colour)):
             if self.colour == colour:
-                return -200
+                return -1000000 + depth
             else:
-                return 200
+                return 1000000 - depth
 
         boards = board.generateAllBoards(colour)
         bestBoards = []
-        bestScore = -300
+        bestScore = -math.inf
 
         for newBoard in boards:
             score = self.minFunction(newBoard, alpha, beta, depth + 1, switch(colour))
@@ -106,7 +107,8 @@ class Computer:
                 bestBoards.append(newBoard)
 
             if score > beta:
-                return bestScore
+                break
+
             alpha = max(alpha, score)
 
         if depth == 0:
@@ -122,13 +124,13 @@ class Computer:
         # If position is lost for side to move
         if board.isCheckmate(switch(colour)):
             if self.colour == colour:
-                return -200
+                return -1000000 + depth
             else:
-                return 200
+                return 1000000 - depth
 
         boards = board.generateAllBoards(colour)
         worstBoards = []
-        worstScore = 300
+        worstScore = math.inf
 
         for newBoard in boards:
             score = self.maxFunction(newBoard, alpha, beta, depth + 1, switch(colour))
@@ -139,7 +141,8 @@ class Computer:
                 worstBoards.append(newBoard)
 
             if score < alpha:
-                return worstScore
+                break
+
             beta = min(alpha, score)
 
         if depth == 0:
