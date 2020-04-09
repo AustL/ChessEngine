@@ -63,6 +63,8 @@ class Move:
             x, y = pieces.distance(self.target, self.piece.getSquare())
             if abs(y) == 2:
                 self.piece.setEnPassant()
+            else:
+                self.piece.removeEnPassant()
 
             adjacentSquare = (self.piece.getSquare()[0] + x, self.piece.getSquare()[1])
             adjacentPiece = self.board.getPieceAt(adjacentSquare)
