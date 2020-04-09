@@ -1,5 +1,5 @@
 import pieces
-import movement
+import game
 from resources import *
 
 
@@ -90,6 +90,21 @@ class Board:
 
         del oldPiece
 
+    def isDone(self, colour):
+        if self.isCheckmate(colour):
+            if colour == WHITE:
+                return 'CHECKMATE-WHITE'
+            else:
+                return 'CHECKMATE-BLACK'
+
+        if self.isStalemate(colour):
+            return 'STALEMATE'
+
+        if self.isInsufficientMaterial():
+            return 'INSUFFICIENT MATERIAL'
+
+        return False
+
     def isCheckmate(self, colour):
         # Colour is colour of piece that just moved
         if not self.isInCheck(switch(colour)):
@@ -159,14 +174,6 @@ class Board:
 
         return True
 
-    @staticmethod
-    def isThreefoldRepetition(game):
-        for board in game.history:
-            if game.history.count(board) >= 3:
-                return True
-
-        return False
-
     def isInCheck(self, colour):
         # Colour is side in check
         if colour == WHITE:
@@ -183,6 +190,19 @@ class Board:
 
         return False
 
+    def generateAllBoards(self, colour):
+        # Colour is side whose turn it is to move
+        if colour == WHITE:
+            colourPieces = self.whitePieces
+        else:
+            colourPieces = self.blackPieces
+
+        boards = []
+        for piece in colourPieces:
+            boards.extend(piece.generateBoards(self))
+
+        return boards
+
     def clone(self):
         cloneWhitePieces = [piece.clone() for piece in self.whitePieces]
         cloneBlackPieces = [piece.clone() for piece in self.blackPieces]
@@ -190,3 +210,19 @@ class Board:
         clone.whitePieces = cloneWhitePieces
         clone.blackPieces = cloneBlackPieces
         return clone
+
+    def evaluate(self, colour):
+        # Colour is side that is maximising
+        score = 0
+        for piece in self.whitePieces:
+            score += piece.getValue()
+
+        for piece in self.blackPieces:
+            score -= piece.getValue()
+
+        if colour == WHITE:
+            sign = 1
+        else:
+            sign = -1
+
+        return score * sign

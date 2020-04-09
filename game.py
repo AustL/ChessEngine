@@ -11,31 +11,29 @@ class Game:
     def __init__(self):
         self.board = board.Board()
         self.white = players.Human(WHITE)
-        self.black = players.Human(BLACK)
+        self.black = players.Computer(BLACK, 3)
         self.history = deque()
 
     def run(self):
+        result = None
+
         run = True
         while run:
             self.history.append(self.board.clone())
             self.white.listen(win, self)
-            self.checkEndGame(WHITE)
+
+            result = self.board.isDone(WHITE)
+            if result:
+                break
+
             self.history.append(self.board.clone())
             self.black.listen(win, self)
-            self.checkEndGame(BLACK)
 
-    def checkEndGame(self, colour):
-        if self.board.isCheckmate(colour):
-            print('Checkmate!')
+            result = self.board.isDone(BLACK)
+            if result:
+                break
 
-        if self.board.isStalemate(colour):
-            print('Stalemate!')
-
-        if self.board.isInsufficientMaterial():
-            print('Insufficient Material!')
-
-        if self.board.isThreefoldRepetition(self):
-            print('Threefold Repetition!')
+        print(result)
 
     def undo(self):
         if len(self.history) > 1:
@@ -46,9 +44,10 @@ class Game:
         return False
 
 
-os.environ['SDL_VIDEO_CENTERED'] = '1'
-pygame.init()
-win = pygame.display.set_mode((880, 880))
+if __name__ == '__main__':
+    os.environ['SDL_VIDEO_CENTERED'] = '1'
+    pygame.init()
+    win = pygame.display.set_mode((880, 880))
 
-game = Game()
-game.run()
+    game = Game()
+    game.run()

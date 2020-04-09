@@ -15,6 +15,7 @@ class Piece(ABC):
         self.hasMoved = False
         self.letter = '_'
         self.canBeEnPassant = False
+        self.value = 0
 
     def __eq__(self, other):
         if self.square == other.square and self.colour == other.colour:
@@ -66,6 +67,11 @@ class Piece(ABC):
 
     def getEnPassant(self):
         return self.canBeEnPassant
+
+    def getValue(self):
+        if self.alive:
+            return self.value
+        return 0
 
     def sameColourAt(self, square, board):
         piece = board.getPieceAt(square)
@@ -123,7 +129,9 @@ class Piece(ABC):
         moves = self.generateMoves(board)
         for target in moves:
             newBoard = board.clone()
-            move = movement.Move(self.clone(), target, newBoard)
+            piece = self.clone()
+            newBoard.replacePiece(newBoard.getPieceAt(piece.getSquare()), piece)
+            move = movement.Move(piece, target, newBoard)
             if move.executable:
                 move.execute()
                 boards.append(newBoard)
@@ -148,6 +156,8 @@ class King(Piece):
             self.image = W_KING
         else:
             self.image = B_KING
+
+        self.value = 99
 
     def clone(self):
         clone = King(self.square, self.colour)
@@ -250,6 +260,8 @@ class Queen(Piece):
         else:
             self.image = B_QUEEN
 
+        self.value = 9
+
     def clone(self):
         clone = Queen(self.square, self.colour)
         clone.alive = self.alive
@@ -334,6 +346,8 @@ class Rook(Piece):
         else:
             self.image = B_ROOK
 
+        self.value = 5
+
     def clone(self):
         clone = Rook(self.square, self.colour)
         clone.alive = self.alive
@@ -393,6 +407,8 @@ class Knight(Piece):
         else:
             self.image = B_KNIGHT
 
+        self.value = 3
+
     def clone(self):
         clone = Knight(self.square, self.colour)
         clone.alive = self.alive
@@ -435,6 +451,8 @@ class Bishop(Piece):
             self.image = W_BISHOP
         else:
             self.image = B_BISHOP
+
+        self.value = 3
 
     def clone(self):
         clone = Bishop(self.square, self.colour)
@@ -493,6 +511,8 @@ class Pawn(Piece):
             self.image = W_PAWN
         else:
             self.image = B_PAWN
+
+        self.value = 1
 
     def clone(self):
         clone = Pawn(self.square, self.colour)
