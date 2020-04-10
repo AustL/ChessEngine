@@ -10,9 +10,6 @@ class Move:
         self.executable = True
 
         if not self.piece or not self.target:
-            print('Move arguments not valid!')
-            print('Piece:', self.piece)
-            print('Target', self.target)
             self.executable = False
 
         if not self.isValid():

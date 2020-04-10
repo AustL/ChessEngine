@@ -1,6 +1,9 @@
 import movement
+from resources import *
 
 import pygame
+from random import choice
+from math import inf
 
 
 class Human:
@@ -31,7 +34,6 @@ class Human:
             if move:
                 if move.executable:
                     move.execute()
-                    print('Move:', move)
                     run = False
 
             game.board.display(win)
@@ -44,7 +46,6 @@ class Human:
         self.selectedPiece = game.board.getPieceAt((x, y))
         if self.selectedPiece and self.selectedPiece.getColour() == self.colour:
             self.selectedPiece.setMoving()
-            # print('Possible Moves:', self.selectedPiece.generateMoves(game.board))
 
     def deselect(self, location, game):
         x, y = location
@@ -57,3 +58,94 @@ class Human:
             self.selectedPiece = None
 
             return movement.Move(piece, target, game.board)
+
+
+class Computer:
+    def __init__(self, colour, maxDepth):
+        self.colour = colour
+        self.maxDepth = maxDepth
+
+    def listen(self, win, game):
+        run = True
+        while run:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+
+            print('Thinking...')
+            board = self.maxFunction(game.board, -400, 400, 0, self.colour)
+            game.board = board
+            print('Moved!')
+            run = False
+
+            game.board.display(win)
+            pygame.display.update()
+
+    def maxFunction(self, board, alpha, beta, depth, colour):
+        # Colour is side to move
+        if depth >= self.maxDepth:
+            return board.evaluate(self.colour)
+
+        # If position is lost for side to move
+        if board.isCheckmate(switch(colour)):
+            if self.colour == colour:
+                return -1000000 + depth
+            else:
+                return 1000000 - depth
+
+        boards = board.generateAllBoards(colour)
+        bestBoards = []
+        bestScore = -inf
+
+        for newBoard in boards:
+            score = self.minFunction(newBoard, alpha, beta, depth + 1, switch(colour))
+            if score > bestScore:
+                bestScore = score
+                bestBoards = [newBoard]
+            elif depth == 0 and score == bestScore:
+                bestBoards.append(newBoard)
+
+            if score > beta:
+                break
+
+            alpha = max(alpha, score)
+
+        if depth == 0:
+            return choice(bestBoards)
+
+        return bestScore
+
+    def minFunction(self, board, alpha, beta, depth, colour):
+        # Colour is side to move
+        if depth >= self.maxDepth:
+            return board.evaluate(self.colour)
+
+        # If position is lost for side to move
+        if board.isCheckmate(switch(colour)):
+            if self.colour == colour:
+                return -1000000 + depth
+            else:
+                return 1000000 - depth
+
+        boards = board.generateAllBoards(colour)
+        worstBoards = []
+        worstScore = inf
+
+        for newBoard in boards:
+            score = self.maxFunction(newBoard, alpha, beta, depth + 1, switch(colour))
+            if score < worstScore:
+                worstScore = score
+                worstBoards = [newBoard]
+            elif depth == 0 and score == worstScore:
+                worstBoards.append(newBoard)
+
+            if score < alpha:
+                break
+
+            beta = min(alpha, score)
+
+        if depth == 0:
+            return choice(worstBoards)
+
+        return worstScore
