@@ -1,7 +1,7 @@
 import movement
 from resources import *
 
-import pygame.event
+import pygame
 from random import choice
 from math import inf
 

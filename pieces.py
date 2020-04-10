@@ -1,7 +1,7 @@
 from resources import *
 import movement
 
-from pygame import mouse
+import pygame
 from abc import abstractmethod, ABC
 
 # Taken from sunfish
@@ -191,7 +191,7 @@ class Piece(ABC):
                 x, y = self.square
                 win.blit(self.image, (x * 100 + 60, y * 100 + 60))
             else:
-                x, y = mouse.get_pos()
+                x, y = pygame.mouse.get_pos()
                 win.blit(self.image, (x - 30, y - 20))
 
     def generateBoards(self, board):
