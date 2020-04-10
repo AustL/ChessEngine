@@ -4,6 +4,7 @@ from resources import *
 import pygame
 from random import choice
 from math import inf
+from sys import exit
 
 
 class Human:
@@ -18,7 +19,7 @@ class Human:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    exit()
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.select(pygame.mouse.get_pos(), game)
@@ -71,7 +72,7 @@ class Computer:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    exit()
 
             print('Thinking...')
             board = self.maxFunction(game.board, -400, 400, 0, self.colour)
