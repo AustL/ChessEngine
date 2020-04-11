@@ -13,6 +13,7 @@ class Game:
         self.white = players.Human(WHITE)
         self.black = players.Computer(BLACK, 2)
         self.history = deque()
+        self.moves = 0
 
     def run(self):
         result = None
@@ -21,6 +22,7 @@ class Game:
         while run:
             self.history.append(self.board.clone())
             self.white.listen(win, self)
+            self.moves += 1
 
             result = self.board.isDone(WHITE)
             if result:
@@ -28,6 +30,7 @@ class Game:
 
             self.history.append(self.board.clone())
             self.black.listen(win, self)
+            self.moves += 1
 
             result = self.board.isDone(BLACK)
             if result:
@@ -39,9 +42,13 @@ class Game:
         if len(self.history) > 1:
             self.board = self.history.pop()
             self.board = self.history.pop()
+            self.moves -= 2
             return True
 
         return False
+
+    def getMoves(self):
+        return self.moves
 
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
