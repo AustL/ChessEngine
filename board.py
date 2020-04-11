@@ -218,7 +218,8 @@ class Board:
 
         boards = []
         for piece in colourPieces:
-            boards.extend(piece.generateBoards(self))
+            if piece.isAlive():
+                boards.extend(piece.generateBoards(self))
 
         return boards
 
