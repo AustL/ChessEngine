@@ -69,11 +69,7 @@ class Computer:
         self.move = Queue()
 
     def listen(self, win, game):
-        if game.getMoves() > 20:
-            self.setDepth(3)
-
-        if game.getMoves() > 50:
-            self.setDepth(4)
+        self.setVariableDepth(game)
 
         computer = Process(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour))
         computer.start()
@@ -101,6 +97,14 @@ class Computer:
 
             game.board.display(win)
             pygame.display.update()
+
+    def setVariableDepth(self, game):
+        if game.board.isInCheck(self.colour):
+            self.maxDepth = 4
+        elif game.getMoves() > 40:
+            self.maxDepth = 4
+        elif game.getMoves() > 20:
+            self.maxDepth = 3
 
     def maxFunction(self, board, alpha, beta, depth, colour):
         # Colour is side to move
