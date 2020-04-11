@@ -1,11 +1,11 @@
 import movement
 from resources import *
 
-import pygame
 from random import choice
 from math import inf
 from sys import exit
-from threading import Thread
+from multiprocessing import Process, Queue
+import time
 
 
 class Human:
@@ -66,7 +66,7 @@ class Computer:
     def __init__(self, colour, maxDepth):
         self.colour = colour
         self.maxDepth = maxDepth
-        self.choice = None
+        self.move = Queue()
 
     def listen(self, win, game):
         if game.getMoves() > 20:
@@ -75,9 +75,10 @@ class Computer:
         if game.getMoves() > 50:
             self.setDepth(4)
 
-        computer = Thread(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour))
+        computer = Process(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour))
         computer.start()
-        print('Thinking...')
+        print(f'Thinking ahead {self.maxDepth} moves...')
+        start = time.time()
 
         run = True
         while run:
@@ -89,12 +90,13 @@ class Computer:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_BACKSPACE:
                         if game.undo():
+                            computer.kill()
                             run = False
 
-            if self.choice:
-                game.board = self.choice
-                self.choice = None
-                print('Moved!')
+            if not self.move.empty():
+                game.board = self.move.get()
+                print('Moved in {:.2f} seconds'.format(time.time() - start))
+                computer.kill()
                 run = False
 
             game.board.display(win)
@@ -130,7 +132,7 @@ class Computer:
             alpha = max(alpha, score)
 
         if depth == 0:
-            self.choice = choice(bestBoards)
+            self.move.put(choice(bestBoards))
             return
 
         return bestScore
@@ -165,7 +167,7 @@ class Computer:
             beta = min(alpha, score)
 
         if depth == 0:
-            return choice(worstBoards)
+            self.move.put(choice(worstBoards))
 
         return worstScore
 

@@ -51,9 +51,13 @@ class Game:
         return self.moves
 
 
-os.environ['SDL_VIDEO_CENTERED'] = '1'
-pygame.init()
-win = pygame.display.set_mode((880, 880))
+if __name__ == '__main__':
+    os.environ['SDL_VIDEO_CENTERED'] = '1'
+    os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = 'hide'
 
-game = Game()
-game.run()
+    pygame.init()
+    win = pygame.display.set_mode((880, 880))
+    pygame.display.set_caption('Chess')
+
+    game = Game()
+    game.run()

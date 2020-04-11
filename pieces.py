@@ -1,7 +1,6 @@
 from resources import *
 import movement
 
-import pygame
 from abc import abstractmethod, ABC
 
 # Taken from sunfish
