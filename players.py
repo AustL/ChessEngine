@@ -5,6 +5,7 @@ import pygame
 from random import choice
 from math import inf
 from sys import exit
+from multiprocessing import Process
 
 
 class Human:
@@ -65,8 +66,19 @@ class Computer:
     def __init__(self, colour, maxDepth):
         self.colour = colour
         self.maxDepth = maxDepth
+        self.choice = None
 
     def listen(self, win, game):
+        if game.getMoves() > 20:
+            self.setDepth(3)
+
+        if game.getMoves() > 50:
+            self.setDepth(4)
+
+        computer = Process(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour))
+        computer.start()
+        print('Thinking...')
+
         run = True
         while run:
             for event in pygame.event.get():
@@ -74,11 +86,16 @@ class Computer:
                     pygame.quit()
                     exit()
 
-            print('Thinking...')
-            board = self.maxFunction(game.board, -400, 400, 0, self.colour)
-            game.board = board
-            print('Moved!')
-            run = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_BACKSPACE:
+                        if game.undo():
+                            run = False
+
+            if self.choice:
+                game.board = self.choice
+                self.choice = None
+                print('Moved!')
+                run = False
 
             game.board.display(win)
             pygame.display.update()
@@ -113,7 +130,8 @@ class Computer:
             alpha = max(alpha, score)
 
         if depth == 0:
-            return choice(bestBoards)
+            self.choice = choice(bestBoards)
+            return
 
         return bestScore
 
@@ -150,3 +168,6 @@ class Computer:
             return choice(worstBoards)
 
         return worstScore
+
+    def setDepth(self, depth):
+        self.maxDepth = depth
