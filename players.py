@@ -5,7 +5,7 @@ import pygame
 from random import choice
 from math import inf
 from sys import exit
-from multiprocessing import Process
+from threading import Thread
 
 
 class Human:
@@ -75,7 +75,7 @@ class Computer:
         if game.getMoves() > 50:
             self.setDepth(4)
 
-        computer = Process(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour))
+        computer = Thread(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour))
         computer.start()
         print('Thinking...')
 

@@ -74,7 +74,6 @@ class Piece(ABC):
     def __init__(self, square, colour):
         self.square = square
         self.colour = colour
-        self.image = None
         self.alive = True
         self.moving = False
         self.hasMoved = False
@@ -185,14 +184,9 @@ class Piece(ABC):
     def isValid(self, square, board):
         pass
 
+    @abstractmethod
     def display(self, win):
-        if self.alive:
-            if not self.moving:
-                x, y = self.square
-                win.blit(self.image, (x * 100 + 60, y * 100 + 60))
-            else:
-                x, y = pygame.mouse.get_pos()
-                win.blit(self.image, (x - 30, y - 20))
+        pass
 
     def generateBoards(self, board):
         boards = []
@@ -222,10 +216,19 @@ class King(Piece):
         super().__init__(square, colour)
         self.letter = 'K'
 
-        if self.isWhite():
-            self.image = W_KING
-        else:
-            self.image = B_KING
+    def display(self, win):
+        if self.alive:
+            if self.isWhite():
+                image = PIECES[0]
+            else:
+                image = PIECES[6]
+
+            if not self.moving:
+                x, y = self.square
+                win.blit(image, (x * 100 + 60, y * 100 + 60))
+            else:
+                x, y = pygame.mouse.get_pos()
+                win.blit(image, (x - 30, y - 20))
 
     def clone(self):
         clone = King(self.square, self.colour)
@@ -323,10 +326,19 @@ class Queen(Piece):
         super().__init__(square, colour)
         self.letter = 'Q'
 
-        if self.isWhite():
-            self.image = W_QUEEN
-        else:
-            self.image = B_QUEEN
+    def display(self, win):
+        if self.alive:
+            if self.isWhite():
+                image = PIECES[1]
+            else:
+                image = PIECES[7]
+
+            if not self.moving:
+                x, y = self.square
+                win.blit(image, (x * 100 + 60, y * 100 + 60))
+            else:
+                x, y = pygame.mouse.get_pos()
+                win.blit(image, (x - 30, y - 20))
 
     def clone(self):
         clone = Queen(self.square, self.colour)
@@ -407,10 +419,19 @@ class Rook(Piece):
         super().__init__(square, colour)
         self.letter = 'R'
 
-        if self.isWhite():
-            self.image = W_ROOK
-        else:
-            self.image = B_ROOK
+    def display(self, win):
+        if self.alive:
+            if self.isWhite():
+                image = PIECES[2]
+            else:
+                image = PIECES[8]
+
+            if not self.moving:
+                x, y = self.square
+                win.blit(image, (x * 100 + 60, y * 100 + 60))
+            else:
+                x, y = pygame.mouse.get_pos()
+                win.blit(image, (x - 30, y - 20))
 
     def clone(self):
         clone = Rook(self.square, self.colour)
@@ -466,10 +487,19 @@ class Knight(Piece):
         super().__init__(square, colour)
         self.letter = 'N'
 
-        if self.isWhite():
-            self.image = W_KNIGHT
-        else:
-            self.image = B_KNIGHT
+    def display(self, win):
+        if self.alive:
+            if self.isWhite():
+                image = PIECES[3]
+            else:
+                image = PIECES[9]
+
+            if not self.moving:
+                x, y = self.square
+                win.blit(image, (x * 100 + 60, y * 100 + 60))
+            else:
+                x, y = pygame.mouse.get_pos()
+                win.blit(image, (x - 30, y - 20))
 
     def clone(self):
         clone = Knight(self.square, self.colour)
@@ -509,10 +539,19 @@ class Bishop(Piece):
         super().__init__(square, colour)
         self.letter = 'B'
 
-        if self.isWhite():
-            self.image = W_BISHOP
-        else:
-            self.image = B_BISHOP
+    def display(self, win):
+        if self.alive:
+            if self.isWhite():
+                image = PIECES[4]
+            else:
+                image = PIECES[10]
+
+            if not self.moving:
+                x, y = self.square
+                win.blit(image, (x * 100 + 60, y * 100 + 60))
+            else:
+                x, y = pygame.mouse.get_pos()
+                win.blit(image, (x - 30, y - 20))
 
     def clone(self):
         clone = Bishop(self.square, self.colour)
@@ -567,10 +606,19 @@ class Pawn(Piece):
         super().__init__(square, colour)
         self.letter = 'P'
 
-        if self.isWhite():
-            self.image = W_PAWN
-        else:
-            self.image = B_PAWN
+    def display(self, win):
+        if self.alive:
+            if self.isWhite():
+                image = PIECES[5]
+            else:
+                image = PIECES[11]
+
+            if not self.moving:
+                x, y = self.square
+                win.blit(image, (x * 100 + 60, y * 100 + 60))
+            else:
+                x, y = pygame.mouse.get_pos()
+                win.blit(image, (x - 30, y - 20))
 
     def clone(self):
         clone = Pawn(self.square, self.colour)

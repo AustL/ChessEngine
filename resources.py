@@ -9,20 +9,21 @@ LIGHT_WOOD = pygame.image.load('images/LIGHT_WOOD.jpg')
 BORDER_WOOD_H = pygame.image.load('images/BORDER_WOOD.jpg')
 BORDER_WOOD_V = pygame.transform.rotate(pygame.image.load('images/BORDER_WOOD.jpg'), 90)
 
-B_KING = pygame.image.load('images/B_KING.png')
-B_QUEEN = pygame.image.load('images/B_QUEEN.png')
-B_ROOK = pygame.image.load('images/B_ROOK.png')
-B_KNIGHT = pygame.image.load('images/B_KNIGHT.png')
-B_BISHOP = pygame.image.load('images/B_BISHOP.png')
-B_PAWN = pygame.image.load('images/B_PAWN.png')
+PIECES = [
+    pygame.image.load('images/W_KING.png'),
+    pygame.image.load('images/W_QUEEN.png'),
+    pygame.image.load('images/W_ROOK.png'),
+    pygame.image.load('images/W_KNIGHT.png'),
+    pygame.image.load('images/W_BISHOP.png'),
+    pygame.image.load('images/W_PAWN.png'),
 
-W_KING = pygame.image.load('images/W_KING.png')
-W_QUEEN = pygame.image.load('images/W_QUEEN.png')
-W_ROOK = pygame.image.load('images/W_ROOK.png')
-W_KNIGHT = pygame.image.load('images/W_KNIGHT.png')
-W_BISHOP = pygame.image.load('images/W_BISHOP.png')
-W_PAWN = pygame.image.load('images/W_PAWN.png')
-
+    pygame.image.load('images/B_KING.png'),
+    pygame.image.load('images/B_QUEEN.png'),
+    pygame.image.load('images/B_ROOK.png'),
+    pygame.image.load('images/B_KNIGHT.png'),
+    pygame.image.load('images/B_BISHOP.png'),
+    pygame.image.load('images/B_PAWN.png'),
+]
 
 # Colours
 WHITE = (255, 255, 255)
@@ -43,4 +44,3 @@ def switch(colour):
         return BLACK
     else:
         return WHITE
-
