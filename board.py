@@ -240,9 +240,13 @@ class Board:
         for piece in self.blackPieces:
             score -= piece.getValue()
 
-        if colour == WHITE:
-            sign = 1
-        else:
-            sign = -1
+        if colour == BLACK:
+            score = -score
 
-        return score * sign
+        # Check
+        if self.isInCheck(colour):
+            score -= 50
+        elif self.isInCheck(switch(colour)):
+            score += 50
+
+        return score
