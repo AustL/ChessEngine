@@ -1,10 +1,12 @@
 import board
 import players
+import widgets
 from resources import *
 
 import pygame
 import os
 from collections import deque
+from sys import exit
 
 
 class Game:
@@ -14,6 +16,31 @@ class Game:
         self.black = players.Computer(BLACK, 2)
         self.history = deque()
         self.moves = 0
+
+        self.menuButtons = [
+            widgets.Button(win, 100, 100, 100, 100, inactiveColour='')
+        ]
+
+    def play(self):
+        self.menu()
+        self.run()
+
+    def menu(self):
+        run = True
+
+        while run:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                    pygame.quit()
+                    exit()
+
+            win.fill(LIGHT_BROWN)
+            for button in self.menuButtons:
+                button.listen()
+                button.draw()
+
+            pygame.display.update()
 
     def run(self):
         result = None
@@ -60,4 +87,4 @@ if __name__ == '__main__':
     pygame.display.set_caption('Chess')
 
     game = Game()
-    game.run()
+    game.play()

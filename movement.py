@@ -71,6 +71,7 @@ class Move:
             # Promotion
             x, y = self.target
             if y == 0 or y == 7:
+                # TODO: Prompt promotion selection
                 oldPiece = self.piece
                 self.piece = pieces.Queen(oldPiece.getSquare(), oldPiece.getColour())
                 self.piece.setMoved()
