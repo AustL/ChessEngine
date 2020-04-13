@@ -9,6 +9,9 @@ LIGHT_WOOD = pygame.image.load('images/LIGHT_WOOD.jpg')
 BORDER_WOOD_H = pygame.image.load('images/BORDER_WOOD.jpg')
 BORDER_WOOD_V = pygame.transform.rotate(pygame.image.load('images/BORDER_WOOD.jpg'), 90)
 
+HUMAN_ICON = pygame.transform.scale(pygame.image.load('images/HUMAN.png'), (100, 100))
+COMPUTER_ICON = pygame.transform.scale(pygame.image.load('images/COMPUTER.png'), (100, 100))
+
 PIECES = [
     pygame.image.load('images/W_KING.png'),
     pygame.image.load('images/W_QUEEN.png'),
@@ -25,6 +28,9 @@ PIECES = [
     pygame.image.load('images/B_PAWN.png'),
 ]
 
+# Sounds
+# ...
+
 # Colours
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -36,7 +42,8 @@ GREEN = (89, 120, 62)
 DARK_GREEN = (60, 80, 40)
 RED = (200, 0, 0)
 BLUE = (0, 0, 100)
-LIGHT_GREY = (210, 210, 180)
+LIGHT_GREEN = (210, 210, 180)
+LIGHT_GREY = (220, 220, 220)
 
 
 def switch(colour):

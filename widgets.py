@@ -41,20 +41,8 @@ class Button:
         self.image = kwargs.get('image', None)
         self.imageHAlign = kwargs.get('imageHAlign', 'centre')
         self.imageVAlign = kwargs.get('imageVAlign', 'centre')
-        self.imageRotation = kwargs.get('imageRotation', 0)
-        self.imageFill = kwargs.get('imageFill', False)
-        self.imageZoom = kwargs.get('imageZoom', 1)
 
         if self.image:
-            self.imageRect = self.image.get_rect()
-
-            if self.imageFill:
-                self.imageZoom = min(self.width / self.imageRect.width, self.height / self.imageRect.height)
-
-            self.image = pygame.transform.rotate(self.image, self.imageRotation)
-            self.image = pygame.transform.scale(
-                self.image, (int(self.imageRect.width * self.imageZoom), int(self.imageRect.height * self.imageZoom))
-            )
             self.imageRect = self.image.get_rect()
             self.alignImageRect()
 
@@ -145,6 +133,17 @@ class Button:
 
         self.win.blit(self.text, self.textRect)
 
+    def setImage(self, image):
+        self.image = image
+
+    def setOnClick(self, onClick, params):
+        self.onClick = onClick
+        self.onClickParams = params
+
+    def setOnRelease(self, onRelease, params):
+        self.onRelease = onRelease
+        self.onReleaseParams = params
+
 
 class ButtonArray:
     def __init__(self, win, x, y, width, height, shape, **kwargs):
@@ -158,7 +157,13 @@ class ButtonArray:
 
         # Array
         self.colour = kwargs.get('colour', (210, 210, 180))
-        self.borderThickness = kwargs.get('borderThickness', 10)
+        self.border = kwargs.get('border', 10)
+        self.topBorder = kwargs.get('topBorder', self.border)
+        self.bottomBorder = kwargs.get('bottomBorder', self.border)
+        self.leftBorder = kwargs.get('leftBorder', self.border)
+        self.rightBorder = kwargs.get('rightBorder', self.border)
+        self.borderRadius = kwargs.get('borderRadius', 0)
+        self.separationThickness = kwargs.get('separationThickness', self.border)
 
         self.buttonAttributes = {
             # Colour
@@ -171,8 +176,8 @@ class ButtonArray:
             # Function
             'onClick': kwargs.get('onClicks', None),
             'onRelease': kwargs.get('onReleases', None),
-            'onClickParam': kwargs.get('onClickParams', None),
-            'onReleaseParam': kwargs.get('onReleaseParams', None),
+            'onClickParams': kwargs.get('onClickParams', None),
+            'onReleaseParams': kwargs.get('onReleaseParams', None),
 
             # Text
             'textColour': kwargs.get('textColours', None),
@@ -198,17 +203,17 @@ class ButtonArray:
 
     def createButtons(self):
         across, down = self.shape
-        width = (self.width - (across + 1) * self.borderThickness) // across
-        height = (self.height - (down + 1) * self.borderThickness) // down
+        width = (self.width - self.separationThickness * (across - 1) - self.leftBorder - self.rightBorder) // across
+        height = (self.height - self.separationThickness * (down - 1) - self.topBorder - self.bottomBorder) // down
 
         count = 0
         for i in range(across):
             for j in range(down):
-                x = self.x + i * width + (i + 1) * self.borderThickness
-                y = self.y + j * height + (j + 1) * self.borderThickness
+                x = self.x + i * (width + self.separationThickness) + self.leftBorder
+                y = self.y + j * (height + self.separationThickness) + self.topBorder
                 self.buttons.append(Button(self.win, x, y, width, height,
-                                           **{k: v[count] for k, v in self.buttonAttributes.items() if v is not None}
-                                           ))
+                                           **{k: v[count] for k, v in self.buttonAttributes.items() if v is not None})
+                                    )
                 count += 1
 
     def listen(self, ):
@@ -216,10 +221,29 @@ class ButtonArray:
             button.listen()
 
     def draw(self):
-        pygame.draw.rect(self.win, self.colour, (self.x, self.y, self.width, self.height))
+        rects = [
+            (self.x + self.borderRadius, self.y, self.width - self.borderRadius * 2, self.height),
+            (self.x, self.y + self.borderRadius, self.width, self.height - self.borderRadius * 2)
+        ]
+
+        circles = [
+            (self.x + self.borderRadius, self.y + self.borderRadius),
+            (self.x + self.borderRadius, self.y + self.height - self.borderRadius),
+            (self.x + self.width - self.borderRadius, self.y + self.borderRadius),
+            (self.x + self.width - self.borderRadius, self.y + self.height - self.borderRadius)
+        ]
+
+        for rect in rects:
+            pygame.draw.rect(self.win, self.colour, rect)
+
+        for circle in circles:
+            pygame.draw.circle(self.win, self.colour, circle, self.borderRadius)
 
         for button in self.buttons:
             button.draw()
+
+    def getButtons(self):
+        return self.buttons
 
 
 if __name__ == '__main__':
@@ -229,11 +253,10 @@ if __name__ == '__main__':
     button = Button(win, 100, 100, 300, 150, text='Hello', fontSize=50, margin=20,
                     inactiveColour=(255, 0, 0), pressedColour=(0, 255, 0), radius=20,
                     onClick=lambda: print('Click'), font=pygame.font.SysFont('calibri', 10),
-                    textVAlign='bottom', imageRotation=10,
-                    imageHAlign='centre', imageVAlign='centre', onRelease=lambda: print('Release'),
-                    shadowDistance=5)
+                    textVAlign='bottom', imageHAlign='centre', imageVAlign='centre',
+                    onRelease=lambda: print('Release'), shadowDistance=5)
 
-    buttonArray = ButtonArray(win, 50, 50, 500, 500, (2, 2), borderThickness=100, texts=('1', '2', '3', '4'))
+    buttonArray = ButtonArray(win, 50, 50, 500, 500, (2, 2), border=100, texts=('1', '2', '3', '4'))
 
     run = True
     while run:

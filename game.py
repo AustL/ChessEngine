@@ -13,13 +13,42 @@ class Game:
     def __init__(self):
         self.board = board.Board()
         self.white = players.Human(WHITE)
-        self.black = players.Computer(BLACK, 2)
+        self.black = players.Human(BLACK)
         self.history = deque()
         self.moves = 0
 
         self.menuButtons = [
-            widgets.Button(win, 100, 100, 100, 100, inactiveColour='')
+            widgets.ButtonArray(win, 80, 400, 720, 200, (2, 1), topBorder=20, bottomBorder=20,
+                                leftBorder=100, rightBorder=100, separationThickness=200, borderRadius=20,
+                                inactiveColours=(WHITE, BLACK), activeColours=(WHITE, BLACK),
+                                images=(HUMAN_ICON, HUMAN_ICON), radii=(20, 20), hoverColours=(LIGHT_GREY, GREY),
+                                onClicks=(self.selectComputer, self.selectComputer),
+                                onClickParams=((WHITE,), (BLACK,)))
         ]
+
+    def selectHuman(self, colour):
+        if colour == WHITE:
+            self.white = players.Human(WHITE)
+            button = self.menuButtons[0].getButtons()[0]
+            button.setImage(HUMAN_ICON)
+            button.setOnClick(self.selectComputer, (WHITE,))
+        else:
+            self.black = players.Human(BLACK)
+            button = self.menuButtons[0].getButtons()[1]
+            button.setImage(HUMAN_ICON)
+            button.setOnClick(self.selectComputer, (BLACK,))
+
+    def selectComputer(self, colour):
+        if colour == WHITE:
+            self.white = players.Computer(WHITE, 2)
+            button = self.menuButtons[0].getButtons()[0]
+            button.setImage(COMPUTER_ICON)
+            button.setOnClick(self.selectHuman, (WHITE,))
+        else:
+            self.black = players.Computer(BLACK, 2)
+            button = self.menuButtons[0].getButtons()[1]
+            button.setImage(COMPUTER_ICON)
+            button.setOnClick(self.selectHuman, (BLACK,))
 
     def play(self):
         self.menu()
