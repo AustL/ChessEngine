@@ -69,7 +69,7 @@ class Computer:
         self.move = Queue()
 
     def listen(self, win, game):
-        #self.setVariableDepth(game)
+        self.setVariableDepth(game)
 
         computer = Process(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour))
         computer.start()
