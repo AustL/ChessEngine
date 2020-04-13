@@ -223,6 +223,22 @@ class Board:
 
         return boards
 
+    def numMovesPossible(self, colour):
+        if colour == WHITE:
+            colourPieces = self.whitePieces
+        else:
+            colourPieces = self.blackPieces
+
+        moves = 0
+        for piece in colourPieces:
+            if piece.isAlive():
+                if isinstance(piece, pieces.Bishop) or isinstance(piece, pieces.Knight):
+                    moves += piece.numMovesPossible(self) * 100
+                else:
+                    moves += piece.numMovesPossible(self) * 10
+
+        return moves
+
     def clone(self):
         cloneWhitePieces = [piece.clone() for piece in self.whitePieces]
         cloneBlackPieces = [piece.clone() for piece in self.blackPieces]
@@ -242,6 +258,10 @@ class Board:
 
         if colour == BLACK:
             score = -score
+
+        # Mobility
+        score += self.numMovesPossible(WHITE)
+        score += self.numMovesPossible(BLACK)
 
         # Check
         if self.isInCheck(colour):

@@ -201,6 +201,9 @@ class Piece(ABC):
 
         return boards
 
+    def numMovesPossible(self, board):
+        return len(self.generateMoves(board))
+
     @abstractmethod
     def generateMoves(self, board):
         pass
