@@ -1,11 +1,11 @@
 import movement
 from resources import *
 
-import pygame
-from random import choice
+from random import random
 from math import inf
 from sys import exit
-from threading import Thread
+from multiprocessing import Process, Queue
+import time
 
 
 class Human:
@@ -66,18 +66,15 @@ class Computer:
     def __init__(self, colour, maxDepth):
         self.colour = colour
         self.maxDepth = maxDepth
-        self.choice = None
+        self.move = Queue()
 
     def listen(self, win, game):
-        if game.getMoves() > 20:
-            self.setDepth(3)
+        self.setVariableDepth(game)
 
-        if game.getMoves() > 50:
-            self.setDepth(4)
-
-        computer = Thread(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour))
+        computer = Process(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour))
         computer.start()
-        print('Thinking...')
+        print(f'Thinking ahead {self.maxDepth} moves...')
+        start = time.time()
 
         run = True
         while run:
@@ -89,16 +86,27 @@ class Computer:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_BACKSPACE:
                         if game.undo():
+                            computer.kill()
                             run = False
 
-            if self.choice:
-                game.board = self.choice
-                self.choice = None
-                print('Moved!')
+            if not self.move.empty():
+                game.board = self.move.get()
+                print('Moved in {:.2f} seconds'.format(time.time() - start))
+                computer.kill()
                 run = False
 
             game.board.display(win)
             pygame.display.update()
+
+    def setVariableDepth(self, game):
+        if game.board.isInCheck(self.colour):
+            self.maxDepth = 4
+        elif game.getMoves() > 40:
+            self.maxDepth = 4
+        elif game.getMoves() > 20:
+            self.maxDepth = 3
+        else:
+            self.maxDepth = 2
 
     def maxFunction(self, board, alpha, beta, depth, colour):
         # Colour is side to move
@@ -113,16 +121,17 @@ class Computer:
                 return 1000000 - depth
 
         boards = board.generateAllBoards(colour)
-        bestBoards = []
+        bestBoard = None
         bestScore = -inf
 
         for newBoard in boards:
             score = self.minFunction(newBoard, alpha, beta, depth + 1, switch(colour))
             if score > bestScore:
                 bestScore = score
-                bestBoards = [newBoard]
-            elif depth == 0 and score == bestScore:
-                bestBoards.append(newBoard)
+                bestBoard = newBoard
+            elif score == bestScore:
+                if random() < 0.3:
+                    bestBoard = newBoard
 
             if score > beta:
                 break
@@ -130,7 +139,7 @@ class Computer:
             alpha = max(alpha, score)
 
         if depth == 0:
-            self.choice = choice(bestBoards)
+            self.move.put(bestBoard)
             return
 
         return bestScore
@@ -148,16 +157,17 @@ class Computer:
                 return 1000000 - depth
 
         boards = board.generateAllBoards(colour)
-        worstBoards = []
+        worstBoard = None
         worstScore = inf
 
         for newBoard in boards:
             score = self.maxFunction(newBoard, alpha, beta, depth + 1, switch(colour))
             if score < worstScore:
                 worstScore = score
-                worstBoards = [newBoard]
-            elif depth == 0 and score == worstScore:
-                worstBoards.append(newBoard)
+                worstBoard = newBoard
+            elif score == worstScore:
+                if random() < 0.3:
+                    worstBoard = newBoard
 
             if score < alpha:
                 break
@@ -165,7 +175,7 @@ class Computer:
             beta = min(alpha, score)
 
         if depth == 0:
-            return choice(worstBoards)
+            self.move.put(worstBoard)
 
         return worstScore
 

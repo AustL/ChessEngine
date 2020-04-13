@@ -1,7 +1,6 @@
 from resources import *
 import movement
 
-import pygame
 from abc import abstractmethod, ABC
 
 # Taken from sunfish
@@ -14,7 +13,7 @@ PIECE_SQUARE_TABLE = {
         83, 116, 98, 115, 114, 100, 115, 87,
         74, 103, 110, 109, 106, 101, 100, 77,
         78, 109, 105, 89, 90, 98, 103, 81,
-        69, 108, 93, 63, 64, 86, 103, 69,
+        69, 108, 93, 63, 64, 103, 103, 69,
         100, 100, 100, 100, 100, 100, 100, 100
     ),
     'N': (
@@ -201,6 +200,9 @@ class Piece(ABC):
                 boards.append(newBoard)
 
         return boards
+
+    def numMovesPossible(self, board):
+        return len(self.generateMoves(board))
 
     @abstractmethod
     def generateMoves(self, board):

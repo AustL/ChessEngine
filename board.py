@@ -218,9 +218,26 @@ class Board:
 
         boards = []
         for piece in colourPieces:
-            boards.extend(piece.generateBoards(self))
+            if piece.isAlive():
+                boards.extend(piece.generateBoards(self))
 
         return boards
+
+    def numMovesPossible(self, colour):
+        if colour == WHITE:
+            colourPieces = self.whitePieces
+        else:
+            colourPieces = self.blackPieces
+
+        moves = 0
+        for piece in colourPieces:
+            if piece.isAlive():
+                if isinstance(piece, pieces.Bishop) or isinstance(piece, pieces.Knight):
+                    moves += piece.numMovesPossible(self) * 100
+                else:
+                    moves += piece.numMovesPossible(self) * 10
+
+        return moves
 
     def clone(self):
         cloneWhitePieces = [piece.clone() for piece in self.whitePieces]
@@ -239,9 +256,17 @@ class Board:
         for piece in self.blackPieces:
             score -= piece.getValue()
 
-        if colour == WHITE:
-            sign = 1
-        else:
-            sign = -1
+        if colour == BLACK:
+            score = -score
 
-        return score * sign
+        # Mobility
+        score += self.numMovesPossible(WHITE)
+        score += self.numMovesPossible(BLACK)
+
+        # Check
+        if self.isInCheck(colour):
+            score -= 50
+        elif self.isInCheck(switch(colour)):
+            score += 50
+
+        return score
