@@ -1,6 +1,7 @@
 import board
 import players
 import widgets
+import exceptions
 from resources import *
 
 import pygame
@@ -12,51 +13,129 @@ from sys import exit
 class Game:
     def __init__(self):
         self.board = board.Board()
-        self.white = players.Human(WHITE)
-        self.black = players.Human(BLACK)
+        self.white = players.Human
+        self.black = players.Human
         self.history = deque()
         self.moves = 0
+        self.state = self.menu
+        self.result = ''
+        self.difficulty = 2
 
         self.menuButtons = [
-            widgets.ButtonArray(win, 80, 400, 720, 200, (2, 1), topBorder=20, bottomBorder=20,
-                                leftBorder=100, rightBorder=100, separationThickness=200, borderRadius=20,
-                                inactiveColours=(WHITE, BLACK), activeColours=(WHITE, BLACK),
-                                images=(HUMAN_ICON, HUMAN_ICON), radii=(20, 20), hoverColours=(LIGHT_GREY, GREY),
-                                onClicks=(self.selectComputer, self.selectComputer),
-                                onClickParams=((WHITE,), (BLACK,)))
+            widgets.ButtonArray(
+                win, 80, 200, 720, 200, (2, 1), topBorder=20, bottomBorder=20,
+                leftBorder=100, rightBorder=100, separationThickness=200, borderRadius=20,
+                inactiveColours=(WHITE, BLACK), pressedColours=(LIGHT_GREY, GREY),
+                images=(HUMAN_ICON, HUMAN_ICON), radii=(20, 20), hoverColours=(LIGHT_GREY, GREY),
+                onReleases=(self.selectComputer, self.selectComputer),
+                onReleaseParams=((WHITE,), (BLACK,))
+            ),
+            widgets.ButtonArray(
+                win, 80, 500, 720, 100, (3, 1), topBorder=20, bottomBorder=20,
+                leftBorder=100, rightBorder=100, separationThickness=170, borderRadius=20,
+                texts=('1', '2', '3'), fontSizes=(30, 30, 30), inactiveColours=(RED, GREEN, RED),
+                pressedColours=(RED, GREEN, RED), hoverColours=(DARK_RED, DARK_GREEN, DARK_RED),
+                onClicks=(self.selectDifficulty, self.selectDifficulty, self.selectDifficulty),
+                onClickParams=((1,), (2,), (3,)), radii=(30, 30, 30)
+            ),
+            widgets.Button(
+                win, 30, 700, 820, 150, inactiveColour=ORANGE, hoverColour=DARK_ORANGE,
+                onClick=self.startGame, text='Start', font=START, radius=30
+            )
+        ]
+
+        self.endButtons = [
+            widgets.Button(
+                win, 30, 700, 820, 150, inactiveColour=ORANGE, hoverColour=DARK_ORANGE,
+                pressedColour=DARK_ORANGE, onRelease=self.showMenu, text='Play Again?',
+                font=START, radius=30
+            )
         ]
 
     def selectHuman(self, colour):
         if colour == WHITE:
-            self.white = players.Human(WHITE)
+            self.white = players.Human
             button = self.menuButtons[0].getButtons()[0]
             button.setImage(HUMAN_ICON)
-            button.setOnClick(self.selectComputer, (WHITE,))
+            button.setOnRelease(self.selectComputer, (WHITE,))
         else:
-            self.black = players.Human(BLACK)
+            self.black = players.Human
             button = self.menuButtons[0].getButtons()[1]
             button.setImage(HUMAN_ICON)
-            button.setOnClick(self.selectComputer, (BLACK,))
+            button.setOnRelease(self.selectComputer, (BLACK,))
 
     def selectComputer(self, colour):
         if colour == WHITE:
-            self.white = players.Computer(WHITE, 2)
+            self.white = players.Computer
             button = self.menuButtons[0].getButtons()[0]
             button.setImage(COMPUTER_ICON)
-            button.setOnClick(self.selectHuman, (WHITE,))
+            button.setOnRelease(self.selectHuman, (WHITE,))
         else:
-            self.black = players.Computer(BLACK, 2)
+            self.black = players.Computer
             button = self.menuButtons[0].getButtons()[1]
             button.setImage(COMPUTER_ICON)
-            button.setOnClick(self.selectHuman, (BLACK,))
+            button.setOnRelease(self.selectHuman, (BLACK,))
+
+    def selectDifficulty(self, difficulty):
+        self.difficulty = difficulty
+
+        for i, button in enumerate(self.menuButtons[1].getButtons()):
+            if i == self.difficulty - 1:
+                button.setInactiveColour(GREEN)
+                button.setPressedColour(GREEN)
+                button.setHoverColour(DARK_GREEN)
+            else:
+                button.setInactiveColour(RED)
+                button.setPressedColour(RED)
+                button.setHoverColour(DARK_RED)
+
+    def startGame(self):
+        if self.difficulty == 1:
+            initialDepth = 2
+            variableDepth = False
+
+        elif self.difficulty == 2:
+            initialDepth = 2
+            variableDepth = True
+
+        else:
+            initialDepth = 3
+            variableDepth = True
+
+        if self.white == players.Human:
+            self.white = self.white(WHITE)
+        else:
+            self.white = self.white(WHITE, initialDepth, variableDepth)
+
+        if self.black == players.Human:
+            self.black = self.black(BLACK)
+        else:
+            self.black = self.black(BLACK, initialDepth, variableDepth)
+
+        raise exceptions.StartGame
+
+    def showMenu(self):
+        raise exceptions.ShowMenu
 
     def play(self):
-        self.menu()
-        self.run()
+        run = True
+        while run:
+            try:
+                self.state()
+            except exceptions.StartGame:
+
+                self.state = self.run
+
+            except exceptions.EndGame as e:
+                self.result = e.result
+                self.state = self.end
+
+            except exceptions.ShowMenu:
+                self.reset()
+                self.state = self.menu
 
     def menu(self):
         run = True
-
         while run:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -72,8 +151,6 @@ class Game:
             pygame.display.update()
 
     def run(self):
-        result = None
-
         run = True
         while run:
             self.history.append(self.board.clone())
@@ -82,7 +159,7 @@ class Game:
 
             result = self.board.isDone(WHITE)
             if result:
-                break
+                raise exceptions.EndGame(result)
 
             self.history.append(self.board.clone())
             self.black.listen(win, self)
@@ -90,9 +167,40 @@ class Game:
 
             result = self.board.isDone(BLACK)
             if result:
-                break
+                raise exceptions.EndGame(result)
 
-        print(result)
+    def end(self):
+        if self.result == 'CHECKMATE-WHITE':
+            text = 'White wins!'
+        elif self.result == 'CHECKMATE-BLACK':
+            text = 'Black wins!'
+        elif self.result == 'STALEMATE':
+            text = 'Draw by stalemate...'
+        elif self.result == 'INSUFFICIENT MATERIAL':
+            text = 'Draw by insufficient material...'
+        else:
+            text = 'This game is broken (:'
+
+        text = RESULT.render(text, True, BLACK)
+        textRect = text.get_rect(center=(440, 440))
+
+        run = True
+        while run:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                    pygame.quit()
+                    exit()
+
+            win.fill(LIGHT_BROWN)
+
+            win.blit(text, textRect)
+
+            for button in self.endButtons:
+                button.listen()
+                button.draw()
+
+            pygame.display.update()
 
     def undo(self):
         if len(self.history) > 1:
@@ -102,6 +210,11 @@ class Game:
             return True
 
         return False
+
+    def reset(self):
+        self.history = deque()
+        self.moves = 0
+        self.board = board.Board()
 
     def getMoves(self):
         return self.moves
@@ -117,3 +230,5 @@ if __name__ == '__main__':
 
     game = Game()
     game.play()
+
+# TODO: timeout

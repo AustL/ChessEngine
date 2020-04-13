@@ -135,6 +135,8 @@ class Button:
 
     def setImage(self, image):
         self.image = image
+        self.imageRect = self.image.get_rect()
+        self.alignImageRect()
 
     def setOnClick(self, onClick, params):
         self.onClick = onClick
@@ -143,6 +145,15 @@ class Button:
     def setOnRelease(self, onRelease, params):
         self.onRelease = onRelease
         self.onReleaseParams = params
+
+    def setInactiveColour(self, colour):
+        self.inactiveColour = colour
+
+    def setPressedColour(self, colour):
+        self.pressedColour = colour
+
+    def setHoverColour(self, colour):
+        self.hoverColour = colour
 
 
 class ButtonArray:

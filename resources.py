@@ -1,4 +1,6 @@
-import pygame.image
+import pygame
+
+pygame.font.init()
 
 # Images
 CHESSBOARD = pygame.image.load('images/CHESSBOARD.png')
@@ -9,8 +11,8 @@ LIGHT_WOOD = pygame.image.load('images/LIGHT_WOOD.jpg')
 BORDER_WOOD_H = pygame.image.load('images/BORDER_WOOD.jpg')
 BORDER_WOOD_V = pygame.transform.rotate(pygame.image.load('images/BORDER_WOOD.jpg'), 90)
 
-HUMAN_ICON = pygame.transform.scale(pygame.image.load('images/HUMAN.png'), (100, 100))
-COMPUTER_ICON = pygame.transform.scale(pygame.image.load('images/COMPUTER.png'), (100, 100))
+HUMAN_ICON = pygame.transform.scale(pygame.image.load('images/HUMAN.png'), (150, 150))
+COMPUTER_ICON = pygame.transform.scale(pygame.image.load('images/COMPUTER.png'), (120, 120))
 
 PIECES = [
     pygame.image.load('images/W_KING.png'),
@@ -28,6 +30,10 @@ PIECES = [
     pygame.image.load('images/B_PAWN.png'),
 ]
 
+# Fonts
+RESULT = pygame.font.SysFont('calibri', 70)
+START = pygame.font.SysFont('calibri', 50)
+
 # Sounds
 # ...
 
@@ -35,13 +41,17 @@ PIECES = [
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREY = (100, 100, 100)
+DARK_GREY = (20, 20, 20)
 DARK_BROWN = (209, 139, 71)
 LIGHT_BROWN = (255, 206, 158)
 MEDIUM_BROWN = (157, 96, 62)
-GREEN = (89, 120, 62)
-DARK_GREEN = (60, 80, 40)
-RED = (200, 0, 0)
+GREEN = (89, 150, 62)
+DARK_GREEN = (70, 130, 50)
+RED = (200, 60, 50)
+DARK_RED = (180, 0, 0)
 BLUE = (0, 0, 100)
+ORANGE = (240, 156, 0)
+DARK_ORANGE = (200, 133, 0)
 LIGHT_GREEN = (210, 210, 180)
 LIGHT_GREY = (220, 220, 220)
 

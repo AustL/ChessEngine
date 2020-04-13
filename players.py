@@ -64,13 +64,16 @@ class Human:
 
 
 class Computer:
-    def __init__(self, colour, maxDepth):
+    def __init__(self, colour, initialDepth, variableDepth):
         self.colour = colour
-        self.maxDepth = maxDepth
+        self.initialDepth = initialDepth
+        self.maxDepth = initialDepth
+        self.variableDepth = variableDepth
         self.move = Queue()
 
     def listen(self, win, game):
-        self.setVariableDepth(game)
+        if self.variableDepth:
+            self.setVariableDepth(game)
 
         computer = Process(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour))
         computer.start()
@@ -101,13 +104,13 @@ class Computer:
 
     def setVariableDepth(self, game):
         if game.board.isInCheck(self.colour):
-            self.maxDepth = 4
+            self.maxDepth = self.initialDepth + 2
         elif game.getMoves() > 40:
-            self.maxDepth = 4
+            self.maxDepth = self.initialDepth + 2
         elif game.getMoves() > 20:
-            self.maxDepth = 3
+            self.maxDepth = self.initialDepth + 1
         else:
-            self.maxDepth = 2
+            self.maxDepth = self.initialDepth
 
     def maxFunction(self, board, alpha, beta, depth, colour):
         # Colour is side to move
