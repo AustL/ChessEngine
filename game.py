@@ -93,24 +93,27 @@ class Game:
         if self.difficulty == 1:
             initialDepth = 2
             variableDepth = False
+            timeout = 3
 
         elif self.difficulty == 2:
             initialDepth = 2
             variableDepth = True
+            timeout = 30
 
         else:
             initialDepth = 3
             variableDepth = True
+            timeout = 60
 
         if self.white == players.Human:
             self.white = self.white(WHITE)
         else:
-            self.white = self.white(WHITE, initialDepth, variableDepth)
+            self.white = self.white(WHITE, initialDepth, variableDepth, timeout)
 
         if self.black == players.Human:
             self.black = self.black(BLACK)
         else:
-            self.black = self.black(BLACK, initialDepth, variableDepth)
+            self.black = self.black(BLACK, initialDepth, variableDepth, timeout)
 
         raise exceptions.StartGame
 
