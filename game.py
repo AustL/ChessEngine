@@ -7,7 +7,8 @@ from resources import *
 import pygame
 import os
 from collections import deque
-from sys import exit
+import sys
+import multiprocessing
 
 
 class Game:
@@ -150,7 +151,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     run = False
                     pygame.quit()
-                    exit()
+                    sys.exit()
 
             win.fill(LIGHT_BROWN)
             for button in self.menuButtons:
@@ -199,7 +200,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     run = False
                     pygame.quit()
-                    exit()
+                    sys.exit()
 
             win.fill(LIGHT_BROWN)
 
@@ -230,6 +231,8 @@ class Game:
 
 
 if __name__ == '__main__':
+    if sys.platform.startswith('win'):
+        multiprocessing.freeze_support()
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = 'hide'
 
