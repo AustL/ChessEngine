@@ -239,6 +239,7 @@ if __name__ == '__main__':
     pygame.init()
     win = pygame.display.set_mode((880, 880))
     pygame.display.set_caption('Chess')
+    pygame.display.set_icon(CHESS_ICON)
 
     game = Game()
     game.play()

@@ -4,15 +4,10 @@ pygame.font.init()
 
 # Images
 CHESSBOARD = pygame.image.load('images/CHESSBOARD.png')
-PLAY = pygame.image.load('images/PLAY.png')
-
-DARK_WOOD = pygame.image.load('images/DARK_WOOD.jpg')
-LIGHT_WOOD = pygame.image.load('images/LIGHT_WOOD.jpg')
-BORDER_WOOD_H = pygame.image.load('images/BORDER_WOOD.jpg')
-BORDER_WOOD_V = pygame.transform.rotate(pygame.image.load('images/BORDER_WOOD.jpg'), 90)
-
 HUMAN_ICON = pygame.transform.scale(pygame.image.load('images/HUMAN.png'), (150, 150))
 COMPUTER_ICON = pygame.transform.scale(pygame.image.load('images/COMPUTER.png'), (120, 120))
+CHESS_ICON = pygame.image.load('images/ICON.ico')
+
 
 PIECES = [
     pygame.image.load('images/W_KING.png'),
