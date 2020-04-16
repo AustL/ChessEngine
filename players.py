@@ -19,6 +19,7 @@ class Human:
             move = None
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    run = False
                     pygame.quit()
                     exit()
 
@@ -63,18 +64,22 @@ class Human:
 
 
 class Computer:
-    def __init__(self, colour, maxDepth):
+    def __init__(self, colour, initialDepth, variableDepth, timeout):
         self.colour = colour
-        self.maxDepth = maxDepth
+        self.initialDepth = initialDepth
+        self.maxDepth = initialDepth
+        self.variableDepth = variableDepth
+        self.timeout = timeout
         self.move = Queue()
 
     def listen(self, win, game):
-        self.setVariableDepth(game)
+        if self.variableDepth:
+            self.setVariableDepth(game)
 
-        computer = Process(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour))
+        start = time.time()
+        computer = Process(target=self.maxFunction, args=(game.board, -inf, inf, 0, self.colour, start))
         computer.start()
         print(f'Thinking ahead {self.maxDepth} moves...')
-        start = time.time()
 
         run = True
         while run:
@@ -100,15 +105,15 @@ class Computer:
 
     def setVariableDepth(self, game):
         if game.board.isInCheck(self.colour):
-            self.maxDepth = 4
+            self.maxDepth = self.initialDepth + 2
         elif game.getMoves() > 40:
-            self.maxDepth = 4
+            self.maxDepth = self.initialDepth + 2
         elif game.getMoves() > 20:
-            self.maxDepth = 3
+            self.maxDepth = self.initialDepth + 1
         else:
-            self.maxDepth = 2
+            self.maxDepth = self.initialDepth
 
-    def maxFunction(self, board, alpha, beta, depth, colour):
+    def maxFunction(self, board, alpha, beta, depth, colour, start):
         # Colour is side to move
         if depth >= self.maxDepth:
             return board.evaluate(self.colour)
@@ -125,7 +130,7 @@ class Computer:
         bestScore = -inf
 
         for newBoard in boards:
-            score = self.minFunction(newBoard, alpha, beta, depth + 1, switch(colour))
+            score = self.minFunction(newBoard, alpha, beta, depth + 1, switch(colour), start)
             if score > bestScore:
                 bestScore = score
                 bestBoard = newBoard
@@ -138,13 +143,17 @@ class Computer:
 
             alpha = max(alpha, score)
 
+            if depth == 0 and time.time() - start > self.timeout:
+                self.move.put(bestBoard)
+                return
+
         if depth == 0:
             self.move.put(bestBoard)
             return
 
         return bestScore
 
-    def minFunction(self, board, alpha, beta, depth, colour):
+    def minFunction(self, board, alpha, beta, depth, colour, start):
         # Colour is side to move
         if depth >= self.maxDepth:
             return board.evaluate(self.colour)
@@ -161,7 +170,7 @@ class Computer:
         worstScore = inf
 
         for newBoard in boards:
-            score = self.maxFunction(newBoard, alpha, beta, depth + 1, switch(colour))
+            score = self.maxFunction(newBoard, alpha, beta, depth + 1, switch(colour), start)
             if score < worstScore:
                 worstScore = score
                 worstBoard = newBoard
@@ -173,6 +182,10 @@ class Computer:
                 break
 
             beta = min(alpha, score)
+
+            if depth == 0 and time.time() - start > self.timeout:
+                self.move.put(worstBoard)
+                return
 
         if depth == 0:
             self.move.put(worstBoard)
