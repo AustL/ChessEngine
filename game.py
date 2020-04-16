@@ -33,7 +33,7 @@ class Game:
             widgets.ButtonArray(
                 win, 80, 500, 720, 100, (4, 1), topBorder=10, bottomBorder=10,
                 leftBorder=80, rightBorder=80, separationThickness=80, borderRadius=20,
-                texts=('1', '2', '3', '4'), fontSizes=(30, 30, 30, 30), inactiveColours=(RED, GREEN, RED, RED),
+                texts=('1', '2', '3', '4'), fontSizes=(40, 40, 40, 40), inactiveColours=(RED, GREEN, RED, RED),
                 pressedColours=(RED, GREEN, RED, RED), hoverColours=(DARK_RED, DARK_GREEN, DARK_RED, DARK_RED),
                 onClicks=(self.selectDifficulty, self.selectDifficulty, self.selectDifficulty, self.selectDifficulty),
                 onClickParams=((1,), (2,), (3,), (4,)), radii=(40, 40, 40, 40)
@@ -131,12 +131,13 @@ class Game:
             try:
                 self.state()
             except exceptions.StartGame:
-
                 self.state = self.run
 
             except exceptions.EndGame as e:
                 self.result = e.result
                 self.state = self.end
+                self.white = type(self.white)
+                self.black = type(self.black)
 
             except exceptions.ShowMenu:
                 self.reset()
