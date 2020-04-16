@@ -31,12 +31,12 @@ class Game:
                 onReleaseParams=((WHITE,), (BLACK,))
             ),
             widgets.ButtonArray(
-                win, 80, 500, 720, 100, (3, 1), topBorder=20, bottomBorder=20,
-                leftBorder=100, rightBorder=100, separationThickness=170, borderRadius=20,
-                texts=('1', '2', '3'), fontSizes=(30, 30, 30), inactiveColours=(RED, GREEN, RED),
-                pressedColours=(RED, GREEN, RED), hoverColours=(DARK_RED, DARK_GREEN, DARK_RED),
-                onClicks=(self.selectDifficulty, self.selectDifficulty, self.selectDifficulty),
-                onClickParams=((1,), (2,), (3,)), radii=(30, 30, 30)
+                win, 80, 500, 720, 100, (4, 1), topBorder=10, bottomBorder=10,
+                leftBorder=80, rightBorder=80, separationThickness=80, borderRadius=20,
+                texts=('1', '2', '3', '4'), fontSizes=(30, 30, 30, 30), inactiveColours=(RED, GREEN, RED, RED),
+                pressedColours=(RED, GREEN, RED, RED), hoverColours=(DARK_RED, DARK_GREEN, DARK_RED, DARK_RED),
+                onClicks=(self.selectDifficulty, self.selectDifficulty, self.selectDifficulty, self.selectDifficulty),
+                onClickParams=((1,), (2,), (3,), (4,)), radii=(40, 40, 40, 40)
             ),
             widgets.Button(
                 win, 30, 700, 820, 150, inactiveColour=ORANGE, hoverColour=DARK_ORANGE,
@@ -100,10 +100,15 @@ class Game:
             variableDepth = True
             timeout = 30
 
-        else:
+        elif self.difficulty == 3:
             initialDepth = 3
             variableDepth = True
             timeout = 60
+
+        else:
+            initialDepth = 4
+            variableDepth = True
+            timeout = 300
 
         if self.white == players.Human:
             self.white = self.white(WHITE)
@@ -233,5 +238,3 @@ if __name__ == '__main__':
 
     game = Game()
     game.play()
-
-# TODO: timeout

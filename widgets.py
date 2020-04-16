@@ -24,7 +24,7 @@ class Button:
         self.onReleaseParams = kwargs.get('onReleaseParams', ())
         self.clicked = False
 
-        # Text
+        # Text (Remove if using PyInstaller)
         self.textColour = kwargs.get('textColour', (0, 0, 0))
         self.fontSize = kwargs.get('fontSize', 20)
         self.string = kwargs.get('text', '')

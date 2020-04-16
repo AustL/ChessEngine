@@ -81,7 +81,6 @@ class Computer:
         computer.start()
         print(f'Thinking ahead {self.maxDepth} moves...')
 
-
         run = True
         while run:
             for event in pygame.event.get():
