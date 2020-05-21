@@ -181,7 +181,7 @@ class Computer:
             if score < alpha:
                 break
 
-            beta = min(alpha, score)
+            beta = min(beta, score)
 
             if depth == 0 and time.time() - start > self.timeout:
                 self.move.put(worstBoard)

@@ -1,6 +1,5 @@
 import board
 import players
-import widgets
 import exceptions
 from resources import *
 
@@ -9,6 +8,7 @@ import os
 from collections import deque
 import sys
 import multiprocessing
+from pygame_widgets import Button, ButtonArray
 
 
 class Game:
@@ -23,7 +23,7 @@ class Game:
         self.difficulty = 2
 
         self.menuButtons = [
-            widgets.ButtonArray(
+            ButtonArray(
                 win, 80, 200, 720, 200, (2, 1), topBorder=20, bottomBorder=20,
                 leftBorder=100, rightBorder=100, separationThickness=200, borderRadius=20,
                 inactiveColours=(WHITE, BLACK), pressedColours=(LIGHT_GREY, GREY),
@@ -31,7 +31,7 @@ class Game:
                 onReleases=(self.selectComputer, self.selectComputer),
                 onReleaseParams=((WHITE,), (BLACK,))
             ),
-            widgets.ButtonArray(
+            ButtonArray(
                 win, 80, 500, 720, 100, (4, 1), topBorder=10, bottomBorder=10,
                 leftBorder=80, rightBorder=80, separationThickness=80, borderRadius=20,
                 texts=('1', '2', '3', '4'), fontSizes=(40, 40, 40, 40), inactiveColours=(RED, GREEN, RED, RED),
@@ -39,14 +39,14 @@ class Game:
                 onClicks=(self.selectDifficulty, self.selectDifficulty, self.selectDifficulty, self.selectDifficulty),
                 onClickParams=((1,), (2,), (3,), (4,)), radii=(40, 40, 40, 40)
             ),
-            widgets.Button(
+            Button(
                 win, 30, 700, 820, 150, inactiveColour=ORANGE, hoverColour=DARK_ORANGE,
                 onClick=self.startGame, text='Start', font=START, radius=30
             )
         ]
 
         self.endButtons = [
-            widgets.Button(
+            Button(
                 win, 30, 700, 820, 150, inactiveColour=ORANGE, hoverColour=DARK_ORANGE,
                 pressedColour=DARK_ORANGE, onRelease=self.showMenu, text='Play Again?',
                 font=START, radius=30
@@ -99,17 +99,17 @@ class Game:
         elif self.difficulty == 2:
             initialDepth = 2
             variableDepth = True
-            timeout = 30
+            timeout = 15
 
         elif self.difficulty == 3:
             initialDepth = 3
             variableDepth = True
-            timeout = 60
+            timeout = 30
 
         else:
             initialDepth = 4
             variableDepth = True
-            timeout = 300
+            timeout = 240
 
         if self.white == players.Human:
             self.white = self.white(WHITE)
@@ -147,7 +147,8 @@ class Game:
     def menu(self):
         run = True
         while run:
-            for event in pygame.event.get():
+            events = pygame.event.get()
+            for event in events:
                 if event.type == pygame.QUIT:
                     run = False
                     pygame.quit()
@@ -155,7 +156,7 @@ class Game:
 
             win.fill(LIGHT_BROWN)
             for button in self.menuButtons:
-                button.listen()
+                button.listen(events)
                 button.draw()
 
             pygame.display.update()
@@ -196,7 +197,8 @@ class Game:
 
         run = True
         while run:
-            for event in pygame.event.get():
+            events = pygame.event.get()
+            for event in events:
                 if event.type == pygame.QUIT:
                     run = False
                     pygame.quit()
@@ -207,7 +209,7 @@ class Game:
             win.blit(text, textRect)
 
             for button in self.endButtons:
-                button.listen()
+                button.listen(events)
                 button.draw()
 
             pygame.display.update()
