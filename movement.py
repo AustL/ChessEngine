@@ -55,26 +55,26 @@ class Move:
                         rook.setSquare(targetSquare)
                         rook.setMoved()
 
-        if isinstance(self.piece, pieces.Pawn):
+        if isinstance(piece, pieces.Pawn):
             # En Passant
-            x, y = pieces.distance(self.target, self.piece.getSquare())
+            x, y = pieces.distance(self.target, piece.getSquare())
             if abs(y) == 2:
-                self.piece.setEnPassant()
+                piece.setEnPassant()
             else:
-                self.piece.removeEnPassant()
+                piece.removeEnPassant()
 
-            adjacentSquare = (self.piece.getSquare()[0] + x, self.piece.getSquare()[1])
-            adjacentPiece = self.board.getPieceAt(adjacentSquare)
-            if abs(x) == abs(y) == 1 and not self.board.getPieceAt(self.target) and adjacentPiece:
+            adjacentSquare = (piece.getSquare()[0] + x, piece.getSquare()[1])
+            adjacentPiece = board.getPieceAt(adjacentSquare)
+            if abs(x) == abs(y) == 1 and not board.getPieceAt(self.target) and adjacentPiece:
                 adjacentPiece.setTaken()
 
             # Promotion
             x, y = self.target
             if y == 0 or y == 7:
-                oldPiece = self.piece
-                self.piece = pieces.Queen(oldPiece.getSquare(), oldPiece.getColour())
-                self.piece.setMoved()
-                self.board.replacePiece(oldPiece, self.piece)
+                oldPiece = piece
+                piece = pieces.Queen(oldPiece.getSquare(), oldPiece.getColour())
+                piece.setMoved()
+                board.replacePiece(oldPiece, piece)
 
     def execute(self):
         if self.executable:
@@ -85,4 +85,3 @@ class Move:
             self.piece.setSquare(self.target)
             self.piece.setMoved()
             self.executable = False
-            self.piece.removeEnPassant()
