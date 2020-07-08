@@ -36,7 +36,11 @@ class Move:
         return False
 
     def checkSpecialMoves(self, piece, board):
-        # Castling
+        self.checkCastling(piece, board)
+        self.checkEnPassant(piece, board)
+        self.checkPromotion(piece, board)
+
+    def checkCastling(self, piece, board):
         if isinstance(piece, pieces.King):
             x, y = pieces.distance(self.target, piece.getSquare())
             if y == 0:
@@ -55,8 +59,8 @@ class Move:
                         rook.setSquare(targetSquare)
                         rook.setMoved()
 
+    def checkEnPassant(self, piece, board):
         if isinstance(piece, pieces.Pawn):
-            # En Passant
             x, y = pieces.distance(self.target, piece.getSquare())
             if abs(y) == 2:
                 piece.setEnPassant()
@@ -68,7 +72,8 @@ class Move:
             if abs(x) == abs(y) == 1 and not board.getPieceAt(self.target) and adjacentPiece:
                 adjacentPiece.setTaken()
 
-            # Promotion
+    def checkPromotion(self, piece, board):
+        if isinstance(piece, pieces.Pawn):
             x, y = self.target
             if y == 0 or y == 7:
                 oldPiece = piece
