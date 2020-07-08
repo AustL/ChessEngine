@@ -85,3 +85,4 @@ class Move:
             self.piece.setSquare(self.target)
             self.piece.setMoved()
             self.executable = False
+            self.piece.removeEnPassant()
