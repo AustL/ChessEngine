@@ -110,13 +110,13 @@ class Board:
         del oldPiece
 
     def isDone(self, colour):
-        if self.isCheckmate(colour):
+        if self.hasDeliveredCheckmate(colour):
             if colour == WHITE:
                 return 'CHECKMATE-WHITE'
             else:
                 return 'CHECKMATE-BLACK'
 
-        if self.isStalemate(colour):
+        if self.hasStalemated(colour):
             return 'STALEMATE'
 
         if self.isInsufficientMaterial():
@@ -124,7 +124,7 @@ class Board:
 
         return False
 
-    def isCheckmate(self, colour):
+    def hasDeliveredCheckmate(self, colour):
         # Colour is colour of piece that just moved
         if not self.isInCheck(switch(colour)):
             return False
@@ -174,7 +174,7 @@ class Board:
             elif (pieces.Knight not in alivePieces) and alivePieces[pieces.Bishop] == 1:
                 return True
 
-    def isStalemate(self, colour):
+    def hasStalemated(self, colour):
         # Colour is side that last moved
         if self.isInCheck(switch(colour)):
             return False
@@ -209,7 +209,7 @@ class Board:
 
         return False
 
-    def generateAllBoards(self, colour):
+    def generateAllBoardsFor(self, colour):
         # Colour is side whose turn it is to move
         if colour == WHITE:
             colourPieces = self.whitePieces
