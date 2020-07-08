@@ -119,13 +119,13 @@ class Computer:
             return board.evaluate(self.colour)
 
         # If position is lost for side to move
-        if board.isCheckmate(switch(colour)):
+        if board.hasDeliveredCheckmate(switch(colour)):
             if self.colour == colour:
                 return -1000000 + depth
             else:
                 return 1000000 - depth
 
-        boards = board.generateAllBoards(colour)
+        boards = board.generateAllBoardsFor(colour)
         bestBoard = None
         bestScore = -inf
 
@@ -159,13 +159,13 @@ class Computer:
             return board.evaluate(self.colour)
 
         # If position is lost for side to move
-        if board.isCheckmate(switch(colour)):
+        if board.hasDeliveredCheckmate(switch(colour)):
             if self.colour == colour:
                 return -1000000 + depth
             else:
                 return 1000000 - depth
 
-        boards = board.generateAllBoards(colour)
+        boards = board.generateAllBoardsFor(colour)
         worstBoard = None
         worstScore = inf
 
