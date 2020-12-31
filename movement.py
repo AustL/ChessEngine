@@ -76,8 +76,11 @@ class Move:
         if isinstance(piece, pieces.Pawn):
             x, y = self.target
             if y == 0 or y == 7:
+                targetPiece = board.getPieceAt(self.target)
+                if targetPiece:
+                    targetPiece.setTaken()
                 oldPiece = piece
-                piece = pieces.Queen(oldPiece.getSquare(), oldPiece.getColour())
+                piece = pieces.Queen(self.target, oldPiece.getColour())
                 piece.setMoved()
                 board.replacePiece(oldPiece, piece)
 
@@ -85,7 +88,7 @@ class Move:
         if self.executable:
             self.checkSpecialMoves(self.piece, self.board)
             targetPiece = self.board.getPieceAt(self.target)
-            if targetPiece:
+            if targetPiece and targetPiece.getColour() != self.piece.getColour():
                 targetPiece.setTaken()
             self.piece.setSquare(self.target)
             self.piece.setMoved()
